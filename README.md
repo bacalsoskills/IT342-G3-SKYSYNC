@@ -1,23 +1,5 @@
 # IT342-G3-SKYSYNC  
 
-<<<<<<< HEAD
-## Team Members  
-
-### Michael Ferdinand C. Bacalso  
-- **Course & Year:** BSIT-3  
-- **About Me:**  
-  Hi, my name is Michael Ferdinand C. Bacalso, and I live in Camela Homes. My favorite foods are egg, chicken, and otan.  
-
-- **Skills:**  
-  - Backend and frontend development  
-  - Problem-solving and debugging  
-  - Collaborative coding and teamwork  
-
-- **Project Role:**  
-  Contributing to the development and integration of backend and frontend components.  
-  Assisting in project planning, testing, and troubleshooting.  
-=======
-SKYSYNC
 # PRODUCT DESCRIPTION:
 SkySync is a smart outdoor activity planner and wardrobe assistant that integrates real-time weather data to help users make informed decisions about their daily plans. The system provides weather forecasts, personalized activity recommendations, and outfit suggestions based on current conditions. Whether the weather is ideal for outdoor activities or unfavorable for going outside, SkySync ensures that users are always prepared, offering both outdoor and indoor activity recommendations. By combining web and mobile applications, SkySync offers a seamless, user-friendly experience for planning activities and selecting appropriate clothing.
 
@@ -72,4 +54,3 @@ COURSE & YEAR: BSIT-3
 DESCRIPTION:
 I'm Rendolf E. Baluntang, a skilled UI/UX developer with a passion for creating seamless digital experiences. I am experienced in various design tools and development practices, dedicated to delivering innovative solutions that meet both user needs and business goals.
 
->>>>>>> c23633933c561ca43101c04fae88fde9543ea576
