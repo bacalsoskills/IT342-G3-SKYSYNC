@@ -24,6 +24,7 @@ Feature 6: Daily Weather Notification (Mobile Application)
 Sends push notifications with daily weather updates and reminders for activities or appropriate attire.
 
 # LINKS:
+https://www.figma.com/design/EOnxoZcw46XIoGZIXyFqdi/TeknoLib?node-id=4-3858&t=T4y2mQGdJuMi7PSO-1
 
 
 # DEVELOPERS PROFILE:
@@ -42,7 +43,8 @@ NAME: CHRISTIAN BARRY R. ALICO
 COURSE & YEAR: BSIT-3
 
 
-DESCRIPTION
+DESCRIPTION:
+I'm Christian Barry Alico, a dedicated backend developer with a strong focus on building efficient and scalable systems. I have experience working with various backend technologies and development practices, and I am passionate about delivering high-performance solutions.
 
 # 3
 
@@ -50,6 +52,6 @@ NAME: RENDOLF E. BALUNTANG
 COURSE & YEAR: BSIT-3
 
 
-DESCRIPTION
-
+DESCRIPTION:
+I'm Rendolf E. Baluntang, a skilled UI/UX developer with a passion for creating seamless digital experiences. I am experienced in various design tools and development practices, dedicated to delivering innovative solutions that meet both user needs and business goals.
 
