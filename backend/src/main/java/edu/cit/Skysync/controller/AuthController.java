@@ -26,7 +26,7 @@ public class AuthController {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
     }
-
+    
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         Optional<UserEntity> userOpt = userRepository.findByEmail(request.getEmail());
