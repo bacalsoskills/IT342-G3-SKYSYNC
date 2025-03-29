@@ -1,15 +1,20 @@
 package edu.cit.Skysync.service;
 
-import edu.cit.Skysync.repository.UserRepository;
-import edu.cit.Skysync.entity.UserEntity;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import edu.cit.Skysync.entity.UserEntity;
+import edu.cit.Skysync.repository.UserRepository;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -39,7 +44,7 @@ public class UserService {
                 user.setEmail(updatedUser.getEmail());
             }
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-                user.setPassword(updatedUser.getPassword());
+                user.setPassword(passwordEncoder.encode(updatedUser.getPassword())); // Ensure password is hashed
             }
             return userRepository.save(user);
         });
