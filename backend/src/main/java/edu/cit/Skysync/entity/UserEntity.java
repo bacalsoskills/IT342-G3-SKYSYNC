@@ -1,9 +1,18 @@
 package edu.cit.Skysync.entity;
 
-import jakarta.persistence.*;
 import java.util.List;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
@@ -26,6 +35,11 @@ public class UserEntity {
     @Column(nullable = false)
     private String password;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<ActivityEntity> activities;
+
+    @OneToMany(mappedBy = "user")
+    private List<ScheduleEntity> schedules;
 
 
     // Getters and Setters
