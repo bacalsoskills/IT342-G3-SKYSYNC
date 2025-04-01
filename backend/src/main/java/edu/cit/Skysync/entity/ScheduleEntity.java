@@ -24,7 +24,10 @@ public class ScheduleEntity {
     private Long scheduleId;
     
     @Column(nullable = false)
-    private LocalDate date;  // New field for the date
+    private LocalDate date;
+    
+    @Column(nullable = false)
+    private String dayOfWeek; // Stores day name (e.g., "Monday")
     
     private LocalDateTime startTime;
     private LocalDateTime endTime;
@@ -39,6 +42,21 @@ public class ScheduleEntity {
     
     @PrePersist
     protected void onCreate() {
-        this.date = LocalDate.now();  // Automatically set date on creation
+        LocalDate currentDate = LocalDate.now();
+        this.date = currentDate;
+        this.dayOfWeek = currentDate.getDayOfWeek()
+                              .getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.US);
+        
+        // Also adjust startTime and endTime to use current date
+        if (this.startTime != null) {
+            this.startTime = this.startTime.withYear(currentDate.getYear())
+                                     .withMonth(currentDate.getMonthValue())
+                                     .withDayOfMonth(currentDate.getDayOfMonth());
+        }
+        if (this.endTime != null) {
+            this.endTime = this.endTime.withYear(currentDate.getYear())
+                                 .withMonth(currentDate.getMonthValue())
+                                 .withDayOfMonth(currentDate.getDayOfMonth());
+        }
     }
 }
