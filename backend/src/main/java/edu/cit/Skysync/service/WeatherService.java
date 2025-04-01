@@ -3,6 +3,7 @@ package edu.cit.Skysync.service;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,49 +20,51 @@ import edu.cit.Skysync.dto.DailyWeatherDTO;
 @Service
 public class WeatherService {
     public List<DailyWeatherDTO> getWeeklyWeather(double latitude, double longitude) {
-        try {
-            String url = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude +
-                    "&longitude=" + longitude + "&daily=temperature_2m_max,temperature_2m_min&hourly=weather_code&timezone=auto";
-            HttpURLConnection apiConnection = fetchApiResponse(url);
-    
-            if (apiConnection.getResponseCode() != 200) {
-                throw new RuntimeException("Failed to fetch weather data");
-            }
-    
-            String jsonResponse = readApiResponse(apiConnection);
-            JSONParser parser = new JSONParser();
-            JSONObject jsonObject = (JSONObject) parser.parse(jsonResponse);
-            
-            JSONObject daily = (JSONObject) jsonObject.get("daily");
-            JSONObject hourly = (JSONObject) jsonObject.get("hourly"); // ✅ Get weather_code from "hourly"
-    
-            JSONArray dates = (JSONArray) daily.get("time");
-            JSONArray maxTemps = (JSONArray) daily.get("temperature_2m_max");
-            JSONArray minTemps = (JSONArray) daily.get("temperature_2m_min");
-            JSONArray weatherCodes = (JSONArray) hourly.get("weather_code"); // ✅ Get weather codes
-            
-            List<DailyWeatherDTO> weatherList = new ArrayList<>();
-            
-            for (int i = 0; i < dates.size(); i++) {
-                String date = (String) dates.get(i);
-                double maxTemp = (double) maxTemps.get(i);
-                double minTemp = (double) minTemps.get(i);
-            
-                // ✅ Get the most frequent weather code for the day
-                int weatherCode = getMostFrequentWeatherCodeValue(weatherCodes, i);
-                String weatherDescription = getWeatherDescription(weatherCode);
-            
-                // ✅ Now we pass both the weather code (int) and description (String)
-                weatherList.add(new DailyWeatherDTO(date, minTemp, maxTemp, weatherCode, weatherDescription));
-            }
-            
-    
-            return weatherList;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>(); // ✅ Return empty list instead of null
+    try {
+        String url = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude +
+                "&longitude=" + longitude + "&daily=temperature_2m_max,temperature_2m_min&hourly=weather_code&timezone=auto";
+        HttpURLConnection apiConnection = fetchApiResponse(url);
+
+        if (apiConnection.getResponseCode() != 200) {
+            throw new RuntimeException("Failed to fetch weather data");
         }
+
+        String jsonResponse = readApiResponse(apiConnection);
+        JSONParser parser = new JSONParser();
+        JSONObject jsonObject = (JSONObject) parser.parse(jsonResponse);
+        
+        JSONObject daily = (JSONObject) jsonObject.get("daily");
+        JSONObject hourly = (JSONObject) jsonObject.get("hourly");
+
+        JSONArray dates = (JSONArray) daily.get("time");
+        JSONArray maxTemps = (JSONArray) daily.get("temperature_2m_max");
+        JSONArray minTemps = (JSONArray) daily.get("temperature_2m_min");
+        JSONArray weatherCodes = (JSONArray) hourly.get("weather_code");
+        
+        List<DailyWeatherDTO> weatherList = new ArrayList<>();
+        
+        for (int i = 0; i < dates.size(); i++) {
+            String dateStr = (String) dates.get(i);
+            double maxTemp = (double) maxTemps.get(i);
+            double minTemp = (double) minTemps.get(i);
+        
+            // Parse the date string (assuming format is YYYY-MM-DD)
+            LocalDate date = LocalDate.parse(dateStr);
+            String dayOfWeek = date.getDayOfWeek().toString(); // Gets enum like MONDAY, TUESDAY
+            dayOfWeek = dayOfWeek.substring(0, 1) + dayOfWeek.substring(1).toLowerCase(); // Formats to "Monday"
+            
+            int weatherCode = getMostFrequentWeatherCodeValue(weatherCodes, i);
+            String weatherDescription = getWeatherDescription(weatherCode);
+        
+            weatherList.add(new DailyWeatherDTO(dateStr, minTemp, maxTemp, weatherCode, weatherDescription, dayOfWeek));
+        }
+        
+        return weatherList;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return new ArrayList<>();
     }
+}
     
 
     public List<DailyWeatherDTO> getWeeklyWeatherByCity(String city) {
