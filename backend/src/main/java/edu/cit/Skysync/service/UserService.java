@@ -29,6 +29,7 @@ public class UserService {
     }
 
     public UserEntity createUser(UserEntity user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword())); // Hash the password
         return userRepository.save(user);
     }
 
@@ -40,11 +41,11 @@ public class UserService {
             if (updatedUser.getLastName() != null) {
                 user.setLastName(updatedUser.getLastName());
             }
-            if (updatedUser.getEmail() != null) {
+            if (updatedUser.getEmail() != null && !updatedUser.getEmail().equals(user.getEmail())) {
                 user.setEmail(updatedUser.getEmail());
             }
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-                user.setPassword(passwordEncoder.encode(updatedUser.getPassword())); // Ensure password is hashed
+                user.setPassword(passwordEncoder.encode(updatedUser.getPassword())); // Hash the password
             }
             return userRepository.save(user);
         });

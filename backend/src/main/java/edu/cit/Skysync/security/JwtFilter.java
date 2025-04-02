@@ -6,8 +6,6 @@ import java.util.Optional;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -30,7 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
         this.userRepository = userRepository;
     }
 
-    @Override
+        @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String header = request.getHeader("Authorization");
@@ -46,14 +44,25 @@ public class JwtFilter extends OncePerRequestFilter {
             Optional<UserEntity> userOpt = userRepository.findByEmail(email);
 
             if (userOpt.isPresent() && jwtUtil.validateToken(token)) {
-                UserDetails userDetails = new User(userOpt.get().getEmail(), "", Collections.emptyList());
+                UserEntity user = userOpt.get();
+                if (!email.equals(user.getEmail())) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Token is invalid due to email mismatch. Please log in again.");
+                    return;
+                }
+
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, Collections.emptyList());
+                        new UsernamePasswordAuthenticationToken(user.getEmail(), null, Collections.emptyList());
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Invalid token. Please log in again.");
+                return;
             }
         } catch (ExpiredJwtException | SignatureException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token has expired or is invalid. Please log in again.");
             return;
         }
 
