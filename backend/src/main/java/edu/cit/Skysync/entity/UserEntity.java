@@ -79,10 +79,10 @@ public class UserEntity {
     }
 
     public void setPassword(String password) {
-        this.password = passwordEncoder.encode(password);
+        this.password = password; // Remove automatic hashing
     }
 
-    public boolean checkPassword(String rawPassword) {
+    public boolean checkPassword(String rawPassword, PasswordEncoder passwordEncoder) {
         return passwordEncoder.matches(rawPassword, this.password);
     }
 
