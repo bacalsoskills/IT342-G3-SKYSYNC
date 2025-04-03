@@ -11,6 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import edu.cit.Skysync.entity.UserEntity;
 import edu.cit.Skysync.repository.UserRepository;
+import edu.cit.Skysync.service.TokenBlacklistService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 import jakarta.servlet.FilterChain;
@@ -22,13 +23,15 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final TokenBlacklistService tokenBlacklistService;
 
-    public JwtFilter(JwtUtil jwtUtil, UserRepository userRepository) {
+    public JwtFilter(JwtUtil jwtUtil, UserRepository userRepository, TokenBlacklistService tokenBlacklistService) {
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
-        @Override
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String header = request.getHeader("Authorization");
@@ -40,6 +43,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = header.substring(7);
         try {
+            // Check if the token is blacklisted
+            if (tokenBlacklistService.isTokenBlacklisted(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token is invalid. Please log in again.");
+                return;
+            }
+
             String email = jwtUtil.extractEmail(token);
             Optional<UserEntity> userOpt = userRepository.findByEmail(email);
 
