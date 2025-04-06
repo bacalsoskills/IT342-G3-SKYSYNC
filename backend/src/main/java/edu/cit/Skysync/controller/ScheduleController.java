@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,5 +69,16 @@ public class ScheduleController {
         return ResponseEntity.ok(
             scheduleService.getSchedulesBetweenDates(userId, start, end)
         );
+    }
+
+    // New endpoint: Delete a schedule by ID
+    @DeleteMapping("/{scheduleId}")
+    public ResponseEntity<String> deleteSchedule(@PathVariable Long scheduleId) {
+        boolean isDeleted = scheduleService.deleteScheduleById(scheduleId);
+        if (isDeleted) {
+            return ResponseEntity.ok("Schedule deleted successfully.");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
