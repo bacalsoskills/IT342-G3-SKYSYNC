@@ -30,8 +30,8 @@ public class NotificationHandler {
             " at " + event.getSchedule().getStartTime().toLocalTime()
         );
         
-        // THIS IS THE CRITICAL LINE TO ADD:
-        notification.setScheduleId(event.getSchedule().getScheduleId());
+        // Set the schedule
+        notification.setSchedule(event.getSchedule());
         
         // Set default read status
         notification.setRead(false);

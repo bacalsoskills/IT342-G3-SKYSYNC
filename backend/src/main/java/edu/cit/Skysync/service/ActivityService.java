@@ -102,4 +102,12 @@ public class ActivityService {
     public List<ActivityEntity> getRecommendedActivitiesByDescription(String weatherDescription) {
         return getActivitiesForWeather(weatherDescription);
     }
+
+    public boolean deleteActivityById(Long activityId) {
+        if (activityRepository.existsById(activityId)) {
+            activityRepository.deleteById(activityId);
+            return true;
+        }
+        return false;
+    }
 }

@@ -149,6 +149,24 @@ public class WeatherService {
         int start = dayIndex * 24;
         int end = Math.min(start + 24, weatherCodes.size());
     
+        // Define priority weather codes (from 45 to 82)
+        List<Integer> priorityWeatherCodes = List.of(
+            45, 48, // Fog-related codes
+            51, 53, 55, // Drizzle-related codes
+            61, 63, 65, // Rain-related codes
+            71, 73, 75, // Snow-related codes
+            80, 81, 82  // Rain showers
+        );
+    
+        // Check for priority weather codes first
+        for (int i = start; i < end; i++) {
+            int code = ((Long) weatherCodes.get(i)).intValue();
+            if (priorityWeatherCodes.contains(code)) {
+                return code; // Return the first priority code found
+            }
+        }
+    
+        // If no priority weather codes are found, calculate the most frequent code
         Map<Integer, Integer> frequencyMap = new HashMap<>();
         for (int i = start; i < end; i++) {
             int code = ((Long) weatherCodes.get(i)).intValue();
@@ -160,6 +178,5 @@ public class WeatherService {
                 .map(Map.Entry::getKey)
                 .orElse(0); // Default to clear sky if no data available
     }
-    
-
-}
+       
+}  

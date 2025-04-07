@@ -1,4 +1,5 @@
 package edu.cit.Skysync.controller;
+
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,13 +25,13 @@ public class WardrobeController {
 
     // Get recommendation by weather code
     @GetMapping("/byCode")
-    public WardrobeRecommendation getRecommendationByCode(@RequestParam int weatherCode) {
+    public List<WardrobeRecommendation> getRecommendationByCode(@RequestParam int weatherCode) {
         return wardrobeService.getOutfitRecommendation(weatherCode);
     }
 
     // Get recommendation for today by location
     @GetMapping("/today")
-    public WardrobeRecommendation getTodayRecommendation(@RequestParam double latitude, @RequestParam double longitude) {
+    public List<WardrobeRecommendation> getTodayRecommendation(@RequestParam double latitude, @RequestParam double longitude) {
         List<DailyWeatherDTO> weather = weatherService.getWeeklyWeather(latitude, longitude);
         if (!weather.isEmpty()) {
             return wardrobeService.getTodayOutfitRecommendation(weather.get(0));
@@ -40,7 +41,7 @@ public class WardrobeController {
 
     // Get recommendation for today by city
     @GetMapping("/todayByCity")
-    public WardrobeRecommendation getTodayRecommendationByCity(@RequestParam String city) {
+    public List<WardrobeRecommendation> getTodayRecommendationByCity(@RequestParam String city) {
         List<DailyWeatherDTO> weather = weatherService.getWeeklyWeatherByCity(city);
         if (weather != null && !weather.isEmpty()) {
             return wardrobeService.getTodayOutfitRecommendation(weather.get(0));

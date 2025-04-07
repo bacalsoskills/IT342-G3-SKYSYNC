@@ -8,10 +8,10 @@ Feature 1: Weather Forecast Dashboard (Web Application)
 Displays real-time and forecasted weather conditions with interactive visualizations.
 
 Feature 2: Activity Recommendation (Web Application)
-Suggests personalized outdoor and indoor activities based on current weather conditions.
+Suggests outdoor or indoor activities based on current weather conditions.
 
-Feature 3: Activity Tracker (Web Application)
-Logs and tracks users' past outdoor activities and links them to weather conditions.
+Feature 3: Schedule Activity (Web Application)
+Schedules selected recommended activity for today.
 
 Feature 4: Wardrobe Recommendation (Mobile Application)
 Suggests appropriate clothing based on the current weather, including UV protection alerts.
@@ -20,7 +20,7 @@ Feature 5: Login Authentication (Mobile Application)
 Secure access through biometric or password authentication with encrypted credentials.
 
 Feature 6: Daily Weather Notification (Mobile Application)
-Sends push notifications with daily weather updates and reminders for activities or appropriate attire.
+Sends notifications of daily weather updates and reminders for scheduled activity.
 
 # LINKS:
 https://www.figma.com/design/EOnxoZcw46XIoGZIXyFqdi/TeknoLib?node-id=4-3858&t=T4y2mQGdJuMi7PSO-1

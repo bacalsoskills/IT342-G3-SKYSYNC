@@ -2,6 +2,9 @@ package edu.cit.Skysync.entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -41,8 +44,10 @@ public class NotificationEntity {
     private UserEntity user;
     
     // Optional: Reference to Schedule without creating a hard dependency
-    @Column(name = "schedule_id")
-    private Long scheduleId; // Stores ID only, not full entity
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "schedule_id", nullable = true) // Allow null values
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private ScheduleEntity schedule;
     
     // Recommended: Add these utility methods
     public void markAsRead() {

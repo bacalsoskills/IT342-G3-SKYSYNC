@@ -8,16 +8,22 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import edu.cit.Skysync.entity.NotificationEntity;
 
 public interface NotificationRepository extends JpaRepository<NotificationEntity, Long> {
-    
-    // Find by user ID (using the 'user' relationship field)
+
+    // Find notifications by user ID
     List<NotificationEntity> findByUser_Id(Long userId);
-    
-    // Optional: Find by schedule ID (if you added schedule_id column)
-    List<NotificationEntity> findByScheduleId(Long scheduleId);
-    
+
+    // Find notifications by schedule ID
+    List<NotificationEntity> findBySchedule_ScheduleId(Long scheduleId);
+
+    // Delete notifications by schedule ID
+    void deleteBySchedule_ScheduleId(Long scheduleId);
+
     // Find unread notifications for a user
     List<NotificationEntity> findByUser_IdAndIsReadFalse(Long userId);
-    
-    // Find upcoming notifications (triggerTime > now)
+
+    // Find upcoming notifications for a user (triggerTime > now)
     List<NotificationEntity> findByUser_IdAndTriggerTimeAfter(Long userId, LocalDateTime now);
+
+    // Find notifications within a specific time range for a user
+    List<NotificationEntity> findByUser_IdAndTriggerTimeBetween(Long userId, LocalDateTime start, LocalDateTime end);
 }
