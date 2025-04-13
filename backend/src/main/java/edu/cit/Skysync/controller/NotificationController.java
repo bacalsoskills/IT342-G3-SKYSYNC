@@ -32,10 +32,10 @@ public class NotificationController {
         return notificationRepository.findByUser_Id(userId);
     }
 
-    @GetMapping("/trigger")
+        @GetMapping("/trigger")
     public ResponseEntity<String> triggerDailyWeatherNotifications() {
         // Trigger the daily weather notifications
-        dailyWeatherNotificationService.sendDailyWeatherNotifications();
+        dailyWeatherNotificationService.triggerDailyWeatherNotifications();
 
         // Fetch today's weather description for Cebu
         String city = "Cebu";
