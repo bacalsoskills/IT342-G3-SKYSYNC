@@ -1,4 +1,4 @@
-package com.frontend.frontend
+package com.frontend.frontend_mobile
 
 import org.junit.Test
 
