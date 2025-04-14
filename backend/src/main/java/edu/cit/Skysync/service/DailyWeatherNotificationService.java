@@ -29,8 +29,14 @@ public class DailyWeatherNotificationService implements Job {
     @Override
     @Transactional
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        triggerDailyWeatherNotifications();
-    }
+        System.out.println("Executing DailyWeatherNotificationService job at: " + LocalDateTime.now());
+        try {
+            triggerDailyWeatherNotifications();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new JobExecutionException("Error executing job", e);
+        }
+}
 
     public void triggerDailyWeatherNotifications() {
         System.out.println("Starting daily weather notifications at: " + LocalDateTime.now());
