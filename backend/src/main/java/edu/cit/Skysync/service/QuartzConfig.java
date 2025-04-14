@@ -1,4 +1,5 @@
 package edu.cit.Skysync.service;
+
 import org.quartz.spi.JobFactory;
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.factory.annotation.Autowired;

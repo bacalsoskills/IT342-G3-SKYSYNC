@@ -3,8 +3,10 @@ package edu.cit.Skysync;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
+import org.quartz.Scheduler;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.spi.JobFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -54,14 +56,35 @@ public class SkysyncApplication {
                 .withIdentity("dailyWeatherNotificationJob")
                 .storeDurably()
                 .build();
-    }   
+    }
 
     @Bean
     public Trigger dailyWeatherNotificationTrigger(JobDetail dailyWeatherNotificationJobDetail) {
         return TriggerBuilder.newTrigger()
                 .forJob(dailyWeatherNotificationJobDetail)
                 .withIdentity("dailyWeatherNotificationTrigger")
-                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(8, 0)) // Runs daily at 8:00 AM
+                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(18, 50)) // Adjust time for testing
                 .build();
+    }
+
+        @Bean
+    public Scheduler startScheduler(SchedulerFactoryBean schedulerFactoryBean, JobDetail dailyWeatherNotificationJobDetail, Trigger dailyWeatherNotificationTrigger) throws Exception {
+        Scheduler scheduler = schedulerFactoryBean.getScheduler();
+        
+        // Register the JobDetail and Trigger with the scheduler
+        if (!scheduler.checkExists(dailyWeatherNotificationJobDetail.getKey())) {
+            scheduler.addJob(dailyWeatherNotificationJobDetail, true);
+        }
+        if (!scheduler.checkExists(dailyWeatherNotificationTrigger.getKey())) {
+            scheduler.scheduleJob(dailyWeatherNotificationTrigger);
+        }
+
+        scheduler.start(); // Explicitly start the scheduler
+
+        System.out.println("Scheduler MetaData: " + scheduler.getMetaData());
+        System.out.println("Registered Jobs: " + scheduler.getJobKeys(GroupMatcher.anyGroup()));
+        System.out.println("Registered Triggers: " + scheduler.getTriggerKeys(GroupMatcher.anyGroup()));
+
+        return scheduler;
     }
 }
