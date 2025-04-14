@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -10,19 +12,38 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/Theme.Frontend"
         tools:targetApi="31">
+
+        <!-- LoginActivity is now the landing page -->
         <activity
-            android:name=".MainActivity"
+            android:name="com.frontend.frontend.LandingPageActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Frontend">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <!-- RegisterActivity -->
+        <activity
+            android:name="com.frontend.frontend.RegisterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Frontend" />
+
+        <!-- HomePage Activity -->
+        <activity
+            android:name="com.frontend.frontend.HomePage"
+            android:exported="false"
+            android:theme="@style/Theme.Frontend" />
+
+        <!-- LandingPageActivity -->
+        <activity
+            android:name="com.frontend.frontend.LoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Frontend" />
+
+    </application>
 </manifest>

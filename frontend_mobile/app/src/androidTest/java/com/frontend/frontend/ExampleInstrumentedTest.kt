@@ -1,4 +1,4 @@
-package com.frontend.frontend_mobile
+package com.frontend.frontend
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
