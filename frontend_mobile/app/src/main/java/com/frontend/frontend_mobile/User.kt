@@ -1,4 +1,4 @@
-package com.frontend.frontend
+package com.frontend.frontend_mobile
 
 data class User(
     val firstName: String,
