@@ -22,7 +22,23 @@ public class WardrobeController {
         this.wardrobeService = wardrobeService;
         this.weatherService = weatherService;
     }
-    
+
+    // Get recommendation by weather code
+    @GetMapping("/byCode")
+    public List<WardrobeRecommendation> getRecommendationByCode(@RequestParam int weatherCode) {
+        return wardrobeService.getOutfitRecommendation(weatherCode);
+    }
+
+    // Get recommendation for today by location
+    @GetMapping("/today")
+    public List<WardrobeRecommendation> getTodayRecommendation(@RequestParam double latitude, @RequestParam double longitude) {
+        List<DailyWeatherDTO> weather = weatherService.getWeeklyWeather(latitude, longitude);
+        if (!weather.isEmpty()) {
+            return wardrobeService.getTodayOutfitRecommendation(weather.get(0));
+        }
+        return wardrobeService.getOutfitRecommendation(-1); // Default recommendation
+    }
+
     // Get recommendation for today by city
     @GetMapping("/todayByCity")
     public List<WardrobeRecommendation> getTodayRecommendationByCity(@RequestParam String city) {

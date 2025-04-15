@@ -3,9 +3,7 @@ package edu.cit.Skysync.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import edu.cit.Skysync.entity.NotificationEntity;
@@ -14,7 +12,7 @@ import edu.cit.Skysync.repository.NotificationRepository;
 import jakarta.transaction.Transactional;
 
 @Service
-public class DailyWeatherNotificationService implements Job {
+public class DailyWeatherNotificationService {
 
     private final UserService userService;
     private final WeatherService weatherService;
@@ -26,46 +24,32 @@ public class DailyWeatherNotificationService implements Job {
         this.notificationRepository = notificationRepository;
     }
 
-    @Override
     @Transactional
-    public void execute(JobExecutionContext context) throws JobExecutionException {
-        triggerDailyWeatherNotifications();
-    }
+    @Scheduled(cron = "0 0 8 * * ?") // Runs every day at 8:00 AM
+    public void sendDailyWeatherNotifications() {
+        List<UserEntity> users = userService.getAllUsers();
 
-    public void triggerDailyWeatherNotifications() {
-        System.out.println("Starting daily weather notifications at: " + LocalDateTime.now());
-        try {
-            List<UserEntity> users = userService.getAllUsers();
-            System.out.println("Found " + users.size() + " users.");
+        // Set a consistent trigger time for all notifications
+        LocalDateTime triggerTime = LocalDateTime.now().withHour(8).withMinute(0).withSecond(0).withNano(0);
 
-            // Set a consistent trigger time for all notifications
-            LocalDateTime triggerTime = LocalDateTime.now().withHour(8).withMinute(0).withSecond(0).withNano(0);
+        // Fetch weather data for Cebu
+        String city = "Cebu";
+        var weatherList = weatherService.getWeeklyWeatherByCity(city);
 
-            // Fetch weather data for Cebu
-            String city = "Cebu";
-            var weatherList = weatherService.getWeeklyWeatherByCity(city);
+        if (weatherList != null && !weatherList.isEmpty()) {
+            String weatherDescription = weatherList.get(0).getWeatherDescription();
 
-            if (weatherList != null && !weatherList.isEmpty()) {
-                String weatherDescription = weatherList.get(0).getWeatherDescription();
-                System.out.println("Weather description for " + city + ": " + weatherDescription);
+            for (UserEntity user : users) {
+                // Create a notification
+                NotificationEntity notification = new NotificationEntity();
+                notification.setUser(user);
+                notification.setMessage("Today's weather in " + city + ": " + weatherDescription);
+                notification.setTriggerTime(triggerTime); // Use the consistent trigger time
+                notification.setRead(false);
 
-                for (UserEntity user : users) {
-                    // Create a notification
-                    NotificationEntity notification = new NotificationEntity();
-                    notification.setUser(user);
-                    notification.setMessage("Today's weather in " + city + ": " + weatherDescription);
-                    notification.setTriggerTime(triggerTime); // Use the consistent trigger time
-                    notification.setRead(false);
-
-                    // Save the notification
-                    notificationRepository.save(notification);
-                    System.out.println("Notification created for user: " + user.getEmail());
-                }
-            } else {
-                System.out.println("No weather data available for " + city + ".");
+                // Save the notification
+                notificationRepository.save(notification);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

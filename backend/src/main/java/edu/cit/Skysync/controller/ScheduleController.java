@@ -1,7 +1,9 @@
 package edu.cit.Skysync.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,12 +43,35 @@ public class ScheduleController {
         );
     }
 
+    // Original endpoint kept for backward compatibility
+    @PostMapping("/create/legacy")
+    public ResponseEntity<ScheduleEntity> createScheduleLegacy(
+            @RequestParam("userId") Long userId,
+            @RequestParam("activityId") Long activityId,
+            @RequestParam("startTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+            @RequestParam("endTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
+        
+        return ResponseEntity.ok(
+            scheduleService.scheduleActivity(userId, activityId, startTime, endTime)
+        );
+    }
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<ScheduleEntity>> getUserSchedules(@PathVariable Long userId) {
         return ResponseEntity.ok(scheduleService.getUserSchedules(userId));
     }
+
+    @GetMapping("/user/{userId}/between")
+    public ResponseEntity<List<ScheduleEntity>> getSchedulesBetweenDates(
+            @PathVariable Long userId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        return ResponseEntity.ok(
+            scheduleService.getSchedulesBetweenDates(userId, start, end)
+        );
+    }
+
     // New endpoint: Delete a schedule by ID
-    
     @DeleteMapping("/{scheduleId}")
     public ResponseEntity<String> deleteSchedule(@PathVariable Long scheduleId) {
         boolean isDeleted = scheduleService.deleteScheduleById(scheduleId);

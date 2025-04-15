@@ -19,6 +19,12 @@ public class WeatherController {
         this.weatherService = weatherService;
     }
 
+    // Fetch weather using latitude & longitude
+    @GetMapping("/weekly")
+    public List<DailyWeatherDTO> getWeeklyWeather(@RequestParam double latitude, @RequestParam double longitude) {
+        return weatherService.getWeeklyWeather(latitude, longitude);
+    }
+
     // Fetch weather using city name
     @GetMapping("/weeklyByCity")
     public List<DailyWeatherDTO> getWeeklyWeatherByCity(@RequestParam String city) {

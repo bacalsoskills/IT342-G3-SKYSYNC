@@ -105,17 +105,6 @@
 			<version>1.18.30</version> <!-- or latest version -->
 			<scope>provided</scope>
 		</dependency>
-    <!-- Quartz Scheduler -->
-    <dependency>
-        <groupId>org.quartz-scheduler</groupId>
-        <artifactId>quartz</artifactId>
-    </dependency>
-
-    <!-- Spring Context Support (for Spring integration with Quartz) -->
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context-support</artifactId>
-    </dependency>
 			</dependencies>
 
 			<build>
