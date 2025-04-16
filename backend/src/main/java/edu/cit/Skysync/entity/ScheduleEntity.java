@@ -33,13 +33,13 @@ public class ScheduleEntity {
     private LocalDateTime endTime;
     
     @ManyToOne
-    @JoinColumn(name = "activity_id", referencedColumnName = "activity_id")
+    @JoinColumn(name = "activity_id", nullable = false)
     private ActivityEntity activity;
-    
+
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
-    
+
     @PrePersist
     protected void onCreate() {
         LocalDate currentDate = LocalDate.now();
