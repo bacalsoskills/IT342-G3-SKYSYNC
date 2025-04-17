@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -18,12 +19,17 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.frontend.mobile.R
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import com.frontend.mobile.api.ApiClient
+import com.frontend.mobile.api.ApiService
+import com.frontend.mobile.model.AuthResponse
 import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun LoginScreen(
-    onLoginClick: (String, String) -> Unit = { _, _ -> },
+    onLoginSuccess: (String) -> Unit, // Pass the token to the next screen
     onRegisterClick: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }
@@ -38,6 +44,8 @@ fun LoginScreen(
         colors = listOf(Color(0xFFB2FEFA), Color(0xFF0ED2F7))
     )
 
+    val apiService = ApiClient.getClient().create(ApiService::class.java)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -49,12 +57,14 @@ fun LoginScreen(
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Logo
             Image(
                 painter = painterResource(id = R.drawable.imagelogo),
                 contentDescription = "SkySync Logo",
                 modifier = Modifier.height(140.dp)
             )
 
+            // Title
             Text(
                 text = "Sign in",
                 fontSize = 24.sp,
@@ -63,6 +73,7 @@ fun LoginScreen(
                 modifier = Modifier.padding(vertical = 12.dp)
             )
 
+            // Email Input
             Text("Email", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
             OutlinedTextField(
                 value = email,
@@ -83,6 +94,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Password Input
             Text("Password", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
             OutlinedTextField(
                 value = password,
@@ -114,14 +126,29 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            // Login Button
             Button(
                 onClick = {
                     emailError = email.isBlank()
                     passwordError = password.isBlank()
 
                     if (!emailError && !passwordError) {
-                        Toast.makeText(context, "Login button clicked", Toast.LENGTH_SHORT).show()
-                        onLoginClick(email, password)
+                        val loginRequest = mapOf("email" to email, "password" to password)
+                        apiService.loginUser(loginRequest).enqueue(object : Callback<AuthResponse> {
+                            override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
+                                if (response.isSuccessful) {
+                                    val authResponse = response.body()
+                                    Toast.makeText(context, "Welcome, ${authResponse?.email}", Toast.LENGTH_SHORT).show()
+                                    onLoginSuccess(authResponse?.token ?: "") // Pass the token
+                                } else {
+                                    Toast.makeText(context, "Invalid credentials", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+
+                            override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
+                                Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        })
                     }
                 },
                 modifier = Modifier
@@ -137,6 +164,7 @@ fun LoginScreen(
             Divider(color = Color.LightGray, thickness = 1.dp)
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Register Navigation
             Text(
                 text = "Don't have an account?",
                 color = Color.DarkGray,
