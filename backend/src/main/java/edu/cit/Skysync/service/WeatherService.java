@@ -83,7 +83,56 @@ public class WeatherService {
         }
     }
 
-    private JSONObject getLocationData(String city) {
+    public DailyWeatherDTO getTodaysWeather(double latitude, double longitude) {
+        try {
+            String url = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude +
+                    "&longitude=" + longitude + "&daily=temperature_2m_max,temperature_2m_min&hourly=weather_code&timezone=auto";
+            HttpURLConnection apiConnection = fetchApiResponse(url);
+
+            if (apiConnection.getResponseCode() != 200) {
+                throw new RuntimeException("Failed to fetch weather data");
+            }
+
+            String jsonResponse = readApiResponse(apiConnection);
+            JSONParser parser = new JSONParser();
+            JSONObject jsonObject = (JSONObject) parser.parse(jsonResponse);
+
+            JSONObject daily = (JSONObject) jsonObject.get("daily");
+            JSONObject hourly = (JSONObject) jsonObject.get("hourly");
+
+            JSONArray dates = (JSONArray) daily.get("time");
+            JSONArray maxTemps = (JSONArray) daily.get("temperature_2m_max");
+            JSONArray minTemps = (JSONArray) daily.get("temperature_2m_min");
+            JSONArray weatherCodes = (JSONArray) hourly.get("weather_code");
+
+            // Get today's date
+            LocalDate today = LocalDate.now();
+            String todayStr = today.toString();
+
+            // Find today's weather data
+            for (int i = 0; i < dates.size(); i++) {
+                if (dates.get(i).equals(todayStr)) {
+                    double maxTemp = (double) maxTemps.get(i);
+                    double minTemp = (double) minTemps.get(i);
+
+                    int weatherCode = getMostFrequentWeatherCodeValue(weatherCodes, i);
+                    String weatherDescription = getWeatherDescription(weatherCode);
+
+                    String dayOfWeek = today.getDayOfWeek().toString();
+                    dayOfWeek = dayOfWeek.substring(0, 1) + dayOfWeek.substring(1).toLowerCase(); // Format to "Monday"
+
+                    return new DailyWeatherDTO(todayStr, minTemp, maxTemp, weatherCode, weatherDescription, dayOfWeek);
+                }
+            }
+
+            throw new RuntimeException("No weather data available for today");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONObject getLocationData(String city) {
         city = city.replaceAll(" ", "+");
         String urlString = "https://geocoding-api.open-meteo.com/v1/search?name=" + city + "&count=1&language=en&format=json";
 
@@ -178,5 +227,10 @@ public class WeatherService {
                 .map(Map.Entry::getKey)
                 .orElse(0); // Default to clear sky if no data available
     }
-       
-}  
+
+
+    public DailyWeatherDTO getTodaysWeatherByCity(String city) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getTodaysWeatherByCity'");
+    }
+}
