@@ -10,7 +10,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.frontend.R
 import com.frontend.frontend.api.ApiClient
-import com.frontend.frontend.model.User
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -38,30 +37,32 @@ class LoginActivity : AppCompatActivity() {
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 val credentials = mapOf("email" to email, "password" to password)
-                ApiClient.apiService.loginUser(credentials).enqueue(object : Callback<User> {
-                    override fun onResponse(call: Call<User>, response: Response<User>) {
+                ApiClient.apiService.loginUser(credentials).enqueue(object : Callback<Map<String, String>> {
+                    override fun onResponse(call: Call<Map<String, String>>, response: Response<Map<String, String>>) {
                         if (response.isSuccessful && response.body() != null) {
-                            // If login is successful, proceed to the HomePage
-                            startActivity(Intent(this@LoginActivity, HomePage::class.java))
-                            finish() // Optionally close the LoginActivity to prevent back navigation
+                            val token = response.body()!!["token"]
+                            if (token != null) {
+                                // Save token for future requests
+                                Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
+                                startActivity(Intent(this@LoginActivity, HomePage::class.java))
+                                finish()
+                            } else {
+                                Toast.makeText(this@LoginActivity, "Invalid response from server", Toast.LENGTH_SHORT).show()
+                            }
                         } else {
-                            // If credentials are incorrect, show an error message
                             Toast.makeText(this@LoginActivity, "Invalid credentials", Toast.LENGTH_SHORT).show()
                         }
                     }
 
-                    override fun onFailure(call: Call<User>, t: Throwable) {
-                        // Show error message if the request fails
+                    override fun onFailure(call: Call<Map<String, String>>, t: Throwable) {
                         Toast.makeText(this@LoginActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
                     }
                 })
             } else {
-                // Show message if either email or password is missing
                 Toast.makeText(this, "Please enter both email and password", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Navigate to the RegisterActivity when the register image is clicked
         registerImageView.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }

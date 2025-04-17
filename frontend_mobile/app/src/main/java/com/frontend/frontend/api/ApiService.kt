@@ -6,9 +6,9 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface ApiService {
-    @POST("/api/users/createUser")
+    @POST("/api/users") // Matches UserController's createUser endpoint
     fun registerUser(@Body user: User): Call<User>
 
-    @POST("/api/users/login") // Add in backend if missing
-    fun loginUser(@Body loginRequest: Map<String, String>): Call<User>
+    @POST("/api/auth/login") // Matches AuthController's login endpoint
+    fun loginUser(@Body loginRequest: Map<String, String>): Call<Map<String, String>> // Expecting token in response
 }
