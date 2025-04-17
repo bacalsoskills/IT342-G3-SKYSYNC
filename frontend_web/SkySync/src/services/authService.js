@@ -1,0 +1,18 @@
+import axios from "axios";
+
+const API_URL = "http://localhost:8080/api/auth"; // Update with your backend URL if different
+
+export const login = async (email, password) => {
+  try {
+    const response = await axios.post(`${API_URL}/login`, { email, password });
+    const { token } = response.data;
+
+    // Save the token to local storage
+    localStorage.setItem("authToken", token);
+
+    return response.data;
+  } catch (error) {
+    console.error("Login error:", error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || "Login failed");
+  }
+};
