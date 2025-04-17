@@ -15,6 +15,7 @@ import edu.cit.Skysync.service.WeatherService;
 @RestController
 @RequestMapping("/wardrobe")
 public class WardrobeController {
+
     private final WardrobeService wardrobeService;
     private final WeatherService weatherService;
 
@@ -22,12 +23,13 @@ public class WardrobeController {
         this.wardrobeService = wardrobeService;
         this.weatherService = weatherService;
     }
-    
+
     // Get recommendation for today by city
     @GetMapping("/todayByCity")
     public List<WardrobeRecommendation> getTodayRecommendationByCity(@RequestParam String city) {
         List<DailyWeatherDTO> weather = weatherService.getWeeklyWeatherByCity(city);
         if (weather != null && !weather.isEmpty()) {
+            // Use the first day's weather (today's weather)
             return wardrobeService.getTodayOutfitRecommendation(weather.get(0));
         }
         return wardrobeService.getOutfitRecommendation(-1); // Default recommendation
