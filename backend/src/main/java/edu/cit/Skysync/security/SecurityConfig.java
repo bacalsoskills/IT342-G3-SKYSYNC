@@ -2,6 +2,7 @@ package edu.cit.Skysync.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,10 +19,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
+                .cors() // Enable CORS
+                .and()
+                .csrf().disable() // Disable CSRF for simplicity (not recommended for production)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/users/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight requests
+                        .requestMatchers("/api/auth/login", "/api/users/**").permitAll() // Allow login and user endpoints
+                        .requestMatchers("/weather/**").permitAll() // Allow weather endpoints
+                        .anyRequest().authenticated() // All other requests require authentication
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

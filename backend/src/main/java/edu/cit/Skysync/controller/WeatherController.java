@@ -3,6 +3,7 @@ package edu.cit.Skysync.controller;
 import java.util.List;
 
 import org.json.simple.JSONObject;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.cit.Skysync.dto.DailyWeatherDTO;
 import edu.cit.Skysync.service.WeatherService;
 
+@CrossOrigin(origins = "http://localhost:5173") 
 @RestController
 @RequestMapping("/weather")
 public class WeatherController {

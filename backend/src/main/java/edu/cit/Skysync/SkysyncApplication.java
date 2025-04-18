@@ -10,7 +10,7 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.spi.JobFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Bean;      
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
