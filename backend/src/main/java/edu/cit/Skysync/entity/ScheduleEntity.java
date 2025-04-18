@@ -59,4 +59,62 @@ public class ScheduleEntity {
                                  .withDayOfMonth(currentDate.getDayOfMonth());
         }
     }
+
+    // Getters
+    public Long getScheduleId() {
+        return scheduleId;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public String getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public ActivityEntity getActivity() {
+        return activity;
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    // Setters
+    public void setScheduleId(Long scheduleId) {
+        this.scheduleId = scheduleId;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public void setDayOfWeek(String dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setActivity(ActivityEntity activity) {
+        this.activity = activity;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
+    }
 }

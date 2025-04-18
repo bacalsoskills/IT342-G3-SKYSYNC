@@ -5,6 +5,7 @@ import { getUserDetails } from "../services/userService";
 import { logout } from "../services/authService";
 import { getTodaysWeatherByCity } from "../services/weatherService";
 import { getWardrobeRecommendationByCity } from "../services/wardrobeService";
+import { getActivityRecommendationsByCity } from "../services/activityService"; // Import the new service
 import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday";
 
@@ -18,9 +19,11 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [weatherData, setWeatherData] = useState(null);
   const [wardrobeData, setWardrobeData] = useState(null);
+  const [activityData, setActivityData] = useState([]); // State for activity recommendations
   const [city, setCity] = useState("Cebu");
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [wardrobeLoading, setWardrobeLoading] = useState(false);
+  const [activityLoading, setActivityLoading] = useState(false); // Loading state for activities
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -31,15 +34,17 @@ const Dashboard = () => {
       alert("You are not logged in. Redirecting to login...");
       window.location.href = "/login";
     } else {
-      fetchUserDetails(userId, authToken);
+      fetchUserDetails(userId);
     }
 
     // Fetch initial data for default city
     fetchWeatherData("Cebu");
+    fetchActivityData("Cebu"); // Fetch activities for the default city
   }, []);
 
-  const fetchUserDetails = async (userId, authToken) => {
+  const fetchUserDetails = async (userId) => {
     try {
+      const authToken = localStorage.getItem("authToken"); // Always get the latest token
       const userDetails = await getUserDetails(userId, authToken);
       setUser({
         firstName: userDetails.firstName,
@@ -84,6 +89,19 @@ const Dashboard = () => {
       setError("Failed to fetch wardrobe recommendations");
     } finally {
       setWardrobeLoading(false);
+    }
+  };
+
+  const fetchActivityData = async (cityName) => {
+    setActivityLoading(true);
+    try {
+      const data = await getActivityRecommendationsByCity(cityName);
+      setActivityData(data); // Set the activity recommendations
+    } catch (err) {
+      console.error("Error fetching activity recommendations:", err);
+      setError("Failed to fetch activity recommendations");
+    } finally {
+      setActivityLoading(false);
     }
   };
 
@@ -169,7 +187,10 @@ const Dashboard = () => {
               size="large"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              onSearch={() => fetchWeatherData(city)}
+              onSearch={() => {
+                fetchWeatherData(city);
+                fetchActivityData(city); // Fetch activities when searching for a city
+              }}
               loading={weatherLoading}
             />
           </div>
@@ -215,7 +236,7 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Recommended Wardrobe Section - Updated */}
+      {/* Recommended Wardrobe Section */}
       <div style={{ marginBottom: "20px" }}>
         <h2>Recommended Wardrobe</h2>
         <Card
@@ -230,27 +251,28 @@ const Dashboard = () => {
             </div>
           ) : wardrobeData && wardrobeData.length > 0 ? (
             <div>
-              {wardrobeData.map((recommendation, index) => (
-                <div key={index} style={{ marginBottom: index < wardrobeData.length - 1 ? "24px" : "0" }}>
-                  <Tag color="blue" style={{ fontSize: "16px", padding: "8px", marginBottom: "12px" }}>
-                    {recommendation.theme}
-                  </Tag>
-                  <List
-                    header={<strong>Recommended Items:</strong>}
-                    bordered
-                    dataSource={recommendation.clothingItems}
-                    renderItem={(item, itemIndex) => (
-                      <List.Item>
-                        <span style={{ marginRight: "8px" }}>•</span>
-                        {item}
-                        <div style={{ color: "#666", marginTop: "4px" }}>
-                          {recommendation.clothingDescriptions[itemIndex]}
-                        </div>
-                      </List.Item>
-                    )}
-                  />
-                </div>
-              ))}
+              <Tag color="blue" style={{ fontSize: "16px", padding: "8px", marginBottom: "12px" }}>
+                {wardrobeData[0].theme}
+              </Tag>
+              <List
+                header={<strong>Recommended Items:</strong>}
+                bordered
+                dataSource={wardrobeData[0].clothingItems.map((item, index) => ({
+                  item,
+                  description: wardrobeData[0].clothingDescriptions[index],
+                }))}
+                renderItem={({ item, description }) => (
+                  <List.Item>
+                    <div>
+                      <span style={{ marginRight: "8px" }}>•</span>
+                      <strong>{item}</strong>
+                      <div style={{ color: "#666", marginTop: "4px" }}>
+                        {description}
+                      </div>
+                    </div>
+                  </List.Item>
+                )}
+              />
             </div>
           ) : (
             <p>Enter a city name to get wardrobe recommendations</p>
@@ -267,16 +289,28 @@ const Dashboard = () => {
             borderRadius: "8px",
           }}
         >
-          {weatherData ? (
-            <p>
-              {weatherData.weatherDescription.includes("rain")
-                ? "Recommended: Indoor activities, Visit museums, Read a book"
-                : weatherData.maxTemp > 25
-                ? "Recommended: Go to the beach, Outdoor sports, Picnic"
-                : "Recommended: Walking, Cycling, Outdoor dining"}
-            </p>
+          {activityLoading ? (
+            <div style={{ textAlign: "center" }}>
+              <Spin />
+            </div>
+          ) : activityData && activityData.length > 0 ? (
+            <List
+              header={<strong>Recommended Activities:</strong>}
+              bordered
+              dataSource={activityData}
+              renderItem={(activity) => (
+                <List.Item>
+                  <div>
+                    <strong>{activity.name}</strong>
+                    <div style={{ color: "#666", marginTop: "4px" }}>
+                      {activity.description}
+                    </div>
+                  </div>
+                </List.Item>
+              )}
+            />
           ) : (
-            <p>Weather data will help us recommend suitable activities</p>
+            <p>No activity recommendations available for this city.</p>
           )}
         </Card>
       </div>
