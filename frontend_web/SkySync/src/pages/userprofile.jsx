@@ -67,7 +67,12 @@ const UserProfile = () => {
 
       console.log("Sending updated user details:", updatedUser);
 
-      await updateUserDetails(userId, authToken, updatedUser);
+      const response = await updateUserDetails(userId, authToken, updatedUser);
+
+      // Update the token in localStorage
+      if (response.token) {
+        localStorage.setItem("authToken", response.token);
+      }
 
       localStorage.setItem("userFirstName", values.firstName);
       localStorage.setItem("userLastName", values.lastName);

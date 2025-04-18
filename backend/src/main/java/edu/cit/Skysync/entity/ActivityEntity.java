@@ -43,4 +43,30 @@ public class ActivityEntity {
         this.description = description;
         this.weatherCondition = weatherCondition;
     }
+
+    // Getters
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getWeatherCondition() {
+        return weatherCondition;
+    }
+
+    // Setters
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setWeatherCondition(String weatherCondition) {
+        this.weatherCondition = weatherCondition;
+    }
 }

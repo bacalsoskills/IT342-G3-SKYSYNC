@@ -57,4 +57,62 @@ public class NotificationEntity {
     public boolean isUpcoming() {
         return triggerTime.isAfter(LocalDateTime.now());
     }
+
+    // Getters
+    public Long getId() {
+        return id;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public LocalDateTime getTriggerTime() {
+        return triggerTime;
+    }
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public boolean isDelivered() {
+        return isDelivered;
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public ScheduleEntity getSchedule() {
+        return schedule;
+    }
+
+    // Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setTriggerTime(LocalDateTime triggerTime) {
+        this.triggerTime = triggerTime;
+    }
+
+    public void setRead(boolean isRead) {
+        this.isRead = isRead;
+    }
+
+    public void setDelivered(boolean isDelivered) {
+        this.isDelivered = isDelivered;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
+    }
+
+    public void setSchedule(ScheduleEntity schedule) {
+        this.schedule = schedule;
+    }
 }

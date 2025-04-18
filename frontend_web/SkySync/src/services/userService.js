@@ -34,7 +34,7 @@ export const updateUserDetails = async (userId, token, userDetails) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return response.data;
+    return response.data; // Return the updated user details and token
   } catch (error) {
     console.error("Error updating user details:", error);
     throw error;

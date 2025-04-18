@@ -23,8 +23,11 @@ public class WardrobeService {
     }
 
     public List<WardrobeRecommendation> getOutfitRecommendation(int weatherCode) {
-        // Fetch recommendations from the database based on the weather code
-        List<WardrobeRecommendationEntity> entities = wardrobeRecommendationRepository.findByWeatherCode(weatherCode);
+        // Map weather codes to their corresponding groups
+        int normalizedWeatherCode = normalizeWeatherCode(weatherCode);
+
+        // Fetch recommendations from the database based on the normalized weather code
+        List<WardrobeRecommendationEntity> entities = wardrobeRecommendationRepository.findByWeatherCode(normalizedWeatherCode);
         return entities.stream()
                 .map(entity -> new WardrobeRecommendation(
                         entity.getTheme(),
@@ -32,6 +35,26 @@ public class WardrobeService {
                         parseJsonArray(entity.getClothingDescriptions())
                 ))
                 .collect(Collectors.toList());
+    }
+
+    // Helper method to normalize weather codes
+    private int normalizeWeatherCode(int weatherCode) {
+        // Define groups of weather codes
+        if (weatherCode == 71 || weatherCode == 73 || weatherCode == 75) {
+            return 71; // Group snowy weather codes under 71
+        } else if (weatherCode == 51 || weatherCode == 53 || weatherCode == 55 || weatherCode == 61 || weatherCode == 63 || weatherCode == 65 || weatherCode == 80 || weatherCode == 81 || weatherCode == 82) {
+            return 51; // Group rainy weather codes under 51
+        } else if (weatherCode == 45 || weatherCode == 48) {
+            return 45; // Group foggy weather codes under 45
+        } else if (weatherCode == 0 || weatherCode == 1) {
+            return 0; // Group clear weather codes under 0
+        } else if (weatherCode == 2) {
+            return 2; // Partly cloudy
+        } else if (weatherCode == 3) {
+            return 3; // Overcast
+        } else {
+            return -1; // Default recommendation
+        }
     }
 
     public List<WardrobeRecommendation> getTodayOutfitRecommendation(DailyWeatherDTO weather) {
