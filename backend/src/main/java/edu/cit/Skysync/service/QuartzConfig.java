@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 @Configuration
 public class QuartzConfig {
@@ -23,5 +24,12 @@ public class QuartzConfig {
                 return job;
             }
         };
+    }
+
+    @Bean
+    public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory) {
+        SchedulerFactoryBean factory = new SchedulerFactoryBean();
+        factory.setJobFactory(jobFactory);
+        return factory;
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,5 +56,17 @@ public class ScheduleController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PutMapping("/{scheduleId}")
+    public ResponseEntity<ScheduleEntity> editSchedule(
+            @PathVariable Long scheduleId,
+            @RequestBody ScheduleRequestDTO scheduleRequest) {
+        ScheduleEntity updatedSchedule = scheduleService.editSchedule(
+            scheduleId,
+            scheduleRequest.getStartTime(),
+            scheduleRequest.getEndTime()
+        );
+        return ResponseEntity.ok(updatedSchedule);
     }
 }

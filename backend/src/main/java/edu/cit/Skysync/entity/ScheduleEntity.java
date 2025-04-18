@@ -3,6 +3,8 @@ package edu.cit.Skysync.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,6 +36,7 @@ public class ScheduleEntity {
     
     @ManyToOne
     @JoinColumn(name = "activity_id", nullable = false)
+    @JsonBackReference
     private ActivityEntity activity;
 
     @ManyToOne

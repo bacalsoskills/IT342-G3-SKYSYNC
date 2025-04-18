@@ -15,6 +15,8 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "activity_entity")  // Explicit table name
@@ -33,9 +35,11 @@ public class ActivityEntity {
     
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore // Prevent circular reference
     private UserEntity user;
 
     @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<ScheduleEntity> schedules;
 
     public ActivityEntity(String name, String description, String weatherCondition) {
