@@ -8,6 +8,7 @@ import { getWardrobeRecommendationByCity } from "../services/wardrobeService";
 import { getActivityRecommendationsByCity } from "../services/activityService"; // Import the new service
 import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 dayjs.extend(weekday);
 
@@ -20,11 +21,15 @@ const Dashboard = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [wardrobeData, setWardrobeData] = useState(null);
   const [activityData, setActivityData] = useState([]); // State for activity recommendations
-  const [city, setCity] = useState("Cebu");
+  const [city, setCity] = useState(() => {
+    // Retrieve the last saved city from localStorage or default to "Cebu"
+    return localStorage.getItem("lastCity") || "Cebu";
+  });
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [wardrobeLoading, setWardrobeLoading] = useState(false);
   const [activityLoading, setActivityLoading] = useState(false); // Loading state for activities
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
@@ -38,8 +43,8 @@ const Dashboard = () => {
     }
 
     // Fetch initial data for default city
-    fetchWeatherData("Cebu");
-    fetchActivityData("Cebu"); // Fetch activities for the default city
+    fetchWeatherData(city);
+    fetchActivityData(city); // Fetch activities for the default city
   }, []);
 
   const fetchUserDetails = async (userId) => {
@@ -129,6 +134,11 @@ const Dashboard = () => {
     window.location.href = "/userprofile";
   };
 
+  const handleCityChange = (newCity) => {
+    setCity(newCity);
+    localStorage.setItem("lastCity", newCity); // Save the city to localStorage
+  };
+
   const userMenu = (
     <Menu>
       <Menu.Item key="profile" onClick={handleProfile}>
@@ -186,7 +196,7 @@ const Dashboard = () => {
               enterButton="Search"
               size="large"
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e) => handleCityChange(e.target.value)} // Update city and save to localStorage
               onSearch={() => {
                 fetchWeatherData(city);
                 fetchActivityData(city); // Fetch activities when searching for a city
@@ -229,6 +239,14 @@ const Dashboard = () => {
                   </p>
                 </div>
               </div>
+              {/* Add Weekly Forecast Button */}
+              <Button
+                type="primary"
+                style={{ marginTop: "16px" }}
+                onClick={() => navigate("/weeklyforecast")} // Navigate to WeeklyForecast
+              >
+                View Weekly Forecast
+              </Button>
             </div>
           ) : (
             <p>Enter a city name to see today's weather forecast</p>
@@ -273,6 +291,14 @@ const Dashboard = () => {
                   </List.Item>
                 )}
               />
+              {/* Add View All Recommended Wardrobes Button */}
+              <Button
+                type="primary"
+                style={{ marginTop: "16px" }}
+                onClick={() => navigate("/recommendedwardrobe")} // Navigate to RecommendedWardrobe page
+              >
+                View All Recommended Wardrobes
+              </Button>
             </div>
           ) : (
             <p>Enter a city name to get wardrobe recommendations</p>
