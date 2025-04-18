@@ -19,7 +19,10 @@
         <activity
             android:name=".MainActivity"
             android:exported="true">
-            <intent-filter>
+            <intent-filter>ATAL EXCEPTION: main (Ask Gemini)
+                                                                                                    Process: com.frontend.mobile, PID: 12692
+                                                                                                    java.lang.IllegalArgumentException: Navigation destination that matches request NavDeepLinkRequest{ uri=android-app://androidx.navigation/register } cannot be found in the navigation graph NavGraph(0x0) startDestination={Destination(0xa268bffc) route=login}
+                                                                                                    	at androidx.navigation.NavController.navigate(NavController.kt:1787)
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

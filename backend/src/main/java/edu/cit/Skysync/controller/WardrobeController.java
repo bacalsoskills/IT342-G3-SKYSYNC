@@ -2,6 +2,7 @@ package edu.cit.Skysync.controller;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,6 +13,7 @@ import edu.cit.Skysync.service.WardrobeService;
 import edu.cit.Skysync.service.WardrobeService.WardrobeRecommendation;
 import edu.cit.Skysync.service.WeatherService;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/wardrobe")
 public class WardrobeController {

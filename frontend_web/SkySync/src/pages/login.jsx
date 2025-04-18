@@ -16,7 +16,9 @@ const Login = () => {
     try {
       const data = await login(email, password);
       alert("Login successful!");
-      window.location.href = "/"; // Redirect to home or dashboard
+      localStorage.setItem("authToken", data.token); // Store the token in local storage
+      localStorage.setItem("userId", data.userId); // Store the userId
+      window.location.href = "/dashboard"; // Redirect to the dashboard
     } catch (err) {
       setError(err.message);
     }
