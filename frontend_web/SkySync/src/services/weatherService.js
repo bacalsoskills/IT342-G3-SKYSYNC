@@ -13,3 +13,15 @@ export const getTodaysWeatherByCity = async (city) => {
     throw error;
   }
 };
+
+export const getWeeklyWeatherByCity = async (city) => {
+  try {
+    const response = await axios.get(`${API_URL}/weeklyByCity`, {
+      params: { city },
+    });
+    return response.data; // Return the weekly weather data
+  } catch (error) {
+    console.error("Error fetching weekly weather by city:", error);
+    throw error;
+  }
+};

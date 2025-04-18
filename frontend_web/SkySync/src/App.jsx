@@ -8,6 +8,8 @@ import Weather from './pages/weather';
 import Activities from './pages/activities';
 import Dashboard from './pages/dashboard'; // Import the Dashboard component
 import UserProfile from './pages/userprofile'; // Import the UserProfile component
+import WeeklyForecast from './pages/weeklyforecast'; // Import the WeeklyForecast component
+import RecommendedWardrobe from './pages/recommendedwardrobe'; // Import the RecommendedWardrobe component
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
           <Route path="/activities" element={<Activities />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/userprofile" element={<UserProfile />} /> {/* Add UserProfile route */}
+          <Route path="/weeklyforecast" element={<WeeklyForecast />} /> {/* Add WeeklyForecast route */}
+          <Route path="/recommendedwardrobe" element={<RecommendedWardrobe />} /> {/* Add RecommendedWardrobe route */}
         </Routes>
       </div>
     </Router>
