@@ -53,16 +53,4 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
-
-    // ✅ New Login Method
-    public Optional<UserEntity> login(String email, String rawPassword) {
-        Optional<UserEntity> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isPresent()) {
-            UserEntity user = userOpt.get();
-            if (passwordEncoder.matches(rawPassword, user.getPassword())) {
-                return Optional.of(user); // Successful login
-            }
-        }
-        return Optional.empty(); // Invalid login
-    }
 }

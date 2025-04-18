@@ -14,7 +14,7 @@ import com.frontend.mobile.ui.activitypage.HomePage
 import com.frontend.mobile.ui.profile.UserProfileScreen
 import com.frontend.mobile.ui.settings.SettingsScreen
 import com.frontend.mobile.ui.aboutus.AboutUsScreen
-import com.frontend.mobile.ui.activitypage.WeatherActivityPage // Corrected import
+import com.frontend.mobile.ui.activitypage.WeatherActivityPage
 import androidx.navigation.navArgument
 
 class MainActivity : ComponentActivity() {
@@ -34,35 +34,40 @@ fun AppNavigator() {
 
     NavHost(navController = navController, startDestination = "login") {
 
+        // Login Screen
         composable("login") {
             LoginScreen(
-                onLoginClick = { email, password ->
+                onLoginSuccess = {
                     navController.navigate("home") {
                         popUpTo("login") { inclusive = true }
                     }
                 },
                 onRegisterClick = {
-                    navController.navigate("register")
+                    navController.navigate("register") // Navigate to the register screen
                 }
             )
         }
 
+        // Register Screen
         composable("register") {
             RegisterScreen(
                 onBackToLogin = {
-                    navController.popBackStack("login", inclusive = false)
+                    navController.popBackStack() // Navigate back to the login screen
                 }
             )
         }
 
+        // Home Page
         composable("home") {
             HomePage(navController = navController)
         }
 
+        // User Profile Screen
         composable("user_profile") {
             UserProfileScreen(navController = navController)
         }
 
+        // Settings Screen
         composable("settings") {
             SettingsScreen(
                 navController = navController,
@@ -72,6 +77,7 @@ fun AppNavigator() {
             )
         }
 
+        // About Us Screen
         composable("about_us") {
             AboutUsScreen(
                 onBackClick = {
@@ -80,7 +86,7 @@ fun AppNavigator() {
             )
         }
 
-        // Updated composable for "weather_activities" to pass weatherCode
+        // Weather Activities Screen
         composable(
             "weather_activities/{weatherCode}",
             arguments = listOf(navArgument("weatherCode") { defaultValue = 0 })
