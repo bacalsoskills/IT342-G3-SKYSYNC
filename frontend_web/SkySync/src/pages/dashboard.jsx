@@ -167,16 +167,17 @@ const Dashboard = () => {
       >
         <div></div>
 
-        {/* User Profile and Notification */}
+        {/* User Profile and My Activities */}
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <Dropdown overlay={userMenu} trigger={["click"]}>
             <Button type="text" style={{ display: "flex", alignItems: "center" }}>
               <UserOutlined style={{ marginRight: "8px" }} />
-              {loading
-                ? "Loading..."
-                : `${user.firstName} ${user.lastName}`}
+              {loading ? "Loading..." : `${user.firstName} ${user.lastName}`}
             </Button>
           </Dropdown>
+          <Button type="link" onClick={() => navigate("/myactivity")}>
+            My Activities
+          </Button>
           <BellOutlined style={{ fontSize: "20px", cursor: "pointer" }} />
         </div>
       </div>
@@ -320,21 +321,31 @@ const Dashboard = () => {
               <Spin />
             </div>
           ) : activityData && activityData.length > 0 ? (
-            <List
-              header={<strong>Recommended Activities:</strong>}
-              bordered
-              dataSource={activityData}
-              renderItem={(activity) => (
-                <List.Item>
-                  <div>
-                    <strong>{activity.name}</strong>
-                    <div style={{ color: "#666", marginTop: "4px" }}>
-                      {activity.description}
+            <div>
+              <List
+                header={<strong>Recommended Activities:</strong>}
+                bordered
+                dataSource={activityData.slice(0, 3)} // Display only the first 3 activities
+                renderItem={(activity) => (
+                  <List.Item>
+                    <div>
+                      <strong>{activity.name}</strong>
+                      <div style={{ color: "#666", marginTop: "4px" }}>
+                        {activity.description}
+                      </div>
                     </div>
-                  </div>
-                </List.Item>
-              )}
-            />
+                  </List.Item>
+                )}
+              />
+              {/* Add View All Recommended Activities Button */}
+              <Button
+                type="primary"
+                style={{ marginTop: "16px" }}
+                onClick={() => navigate("/recommendedactivity")} // Navigate to RecommendedActivity page
+              >
+                View All Recommended Activities
+              </Button>
+            </div>
           ) : (
             <p>No activity recommendations available for this city.</p>
           )}

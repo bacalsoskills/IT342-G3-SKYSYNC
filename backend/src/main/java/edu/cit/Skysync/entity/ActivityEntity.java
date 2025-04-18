@@ -45,6 +45,10 @@ public class ActivityEntity {
     }
 
     // Getters
+    public Long getActivityId() {
+        return activityId;
+    }
+
     public String getName() {
         return name;
     }
@@ -57,7 +61,15 @@ public class ActivityEntity {
         return weatherCondition;
     }
 
+    public UserEntity getUser() {
+        return user;
+    }
+
     // Setters
+    public void setActivityId(Long activityId) {
+        this.activityId = activityId;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -68,5 +80,9 @@ public class ActivityEntity {
 
     public void setWeatherCondition(String weatherCondition) {
         this.weatherCondition = weatherCondition;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 }

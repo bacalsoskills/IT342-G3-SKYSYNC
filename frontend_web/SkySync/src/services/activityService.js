@@ -17,3 +17,40 @@ export const getActivityRecommendationsByCity = async (city) => {
     throw error;
   }
 };
+
+export const saveActivityForUser = async (userId, activity) => {
+  try {
+    const authToken = localStorage.getItem("authToken"); // Retrieve the token from localStorage
+    const response = await axios.post(
+      `${API_URL}`,
+      activity,
+      {
+        params: { userId },
+        headers: {
+          Authorization: `Bearer ${authToken}`, // Include the token in the Authorization header
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error saving activity for user:", error);
+    throw error;
+  }
+};
+
+// Fetch saved activities for a user
+export const getUserActivities = async (userId) => {
+  try {
+    const authToken = localStorage.getItem("authToken"); // Retrieve the token from localStorage
+    const response = await axios.get(`${API_URL}/user`, {
+      params: { userId },
+      headers: {
+        Authorization: `Bearer ${authToken}`, // Include the token in the Authorization header
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user activities:", error);
+    throw error;
+  }
+};
