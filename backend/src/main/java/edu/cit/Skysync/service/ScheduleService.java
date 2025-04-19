@@ -2,6 +2,7 @@ package edu.cit.Skysync.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.time.format.DateTimeFormatter; // Import for formatting
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
@@ -82,11 +83,15 @@ public class ScheduleService {
 
     private void createNotificationJob(ScheduleEntity schedule) {
         try {
+            // Format the start time to "HH:mm"
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            String formattedTime = schedule.getStartTime().toLocalTime().format(timeFormatter);
+
             // Create a JobDetail for the notification
             JobDetail jobDetail = JobBuilder.newJob(NotificationJob.class)
                 .withIdentity("NotificationJob_" + schedule.getScheduleId(), "Notifications")
                 .usingJobData("userId", schedule.getUser().getId())
-                .usingJobData("message", "Reminder: " + schedule.getActivity().getName() + " starts at " + schedule.getStartTime())
+                .usingJobData("message", "New schedule: " + schedule.getActivity().getName() + " at " + formattedTime)
                 .build();
 
             // Create a Trigger for the job
@@ -188,5 +193,11 @@ public class ScheduleService {
             return true;
         }
         return false;
+    }
+
+    @Transactional(readOnly = true)
+    public ScheduleEntity getScheduleByActivityId(Long activityId) {
+        return scheduleRepository.findByActivity_ActivityId(activityId)
+            .orElseThrow(() -> new RuntimeException("Schedule not found for the given activity ID"));
     }
 }

@@ -5,7 +5,8 @@ import { getUserDetails } from "../services/userService";
 import { logout } from "../services/authService";
 import { getTodaysWeatherByCity } from "../services/weatherService";
 import { getWardrobeRecommendationByCity } from "../services/wardrobeService";
-import { getActivityRecommendationsByCity } from "../services/activityService"; // Import the new service
+import { getActivityRecommendationsByCity } from "../services/activityService";
+import { getUserNotifications } from "../services/notificationService"; // Import the notification service
 import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
@@ -29,11 +30,14 @@ const Dashboard = () => {
   const [wardrobeLoading, setWardrobeLoading] = useState(false);
   const [activityLoading, setActivityLoading] = useState(false); // Loading state for activities
   const [error, setError] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
   const navigate = useNavigate(); // Initialize navigate
+
+  const userId = localStorage.getItem("userId"); // Retrieve the user ID from localStorage
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
-    const userId = localStorage.getItem("userId");
 
     if (!authToken || !userId) {
       alert("You are not logged in. Redirecting to login...");
@@ -45,7 +49,17 @@ const Dashboard = () => {
     // Fetch initial data for default city
     fetchWeatherData(city);
     fetchActivityData(city); // Fetch activities for the default city
-  }, []);
+
+    if (userId) {
+      fetchNotifications();
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      fetchNotifications();
+    }
+  }, [userId]);
 
   const fetchUserDetails = async (userId) => {
     try {
@@ -110,6 +124,18 @@ const Dashboard = () => {
     }
   };
 
+  const fetchNotifications = async () => {
+    setLoadingNotifications(true);
+    try {
+      const data = await getUserNotifications(userId);
+      setNotifications(data.slice(0, 5)); // Limit to the 5 most recent notifications
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  };
+
   const handleLogout = async () => {
     const authToken = localStorage.getItem("authToken");
     if (!authToken) {
@@ -150,6 +176,34 @@ const Dashboard = () => {
     </Menu>
   );
 
+  const notificationMenu = (
+    <Menu>
+      {loadingNotifications ? (
+        <Menu.Item key="loading">
+          <Spin size="small" /> Loading notifications...
+        </Menu.Item>
+      ) : (
+        <>
+          {notifications.length > 0 ? (
+            notifications.map((notification) => (
+              <Menu.Item key={notification.id}>
+                <div style={{ whiteSpace: "normal" }}>{notification.message}</div>
+              </Menu.Item>
+            ))
+          ) : (
+            <Menu.Item key="no-notifications">No notifications available</Menu.Item>
+          )}
+          <Menu.Divider />
+          <Menu.Item key="view-all">
+            <Button type="link" onClick={() => navigate("/notifications")}>
+              View All Notifications
+            </Button>
+          </Menu.Item>
+        </>
+      )}
+    </Menu>
+  );
+
   const getDayOfWeek = (dateString) => {
     return dayjs(dateString).format("dddd");
   };
@@ -167,7 +221,7 @@ const Dashboard = () => {
       >
         <div></div>
 
-        {/* User Profile and My Activities */}
+        {/* User Profile and Notifications */}
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <Dropdown overlay={userMenu} trigger={["click"]}>
             <Button type="text" style={{ display: "flex", alignItems: "center" }}>
@@ -178,7 +232,9 @@ const Dashboard = () => {
           <Button type="link" onClick={() => navigate("/myactivity")}>
             My Activities
           </Button>
-          <BellOutlined style={{ fontSize: "20px", cursor: "pointer" }} />
+          <Dropdown overlay={notificationMenu} trigger={["click"]}>
+            <BellOutlined style={{ fontSize: "20px", cursor: "pointer" }} />
+          </Dropdown>
         </div>
       </div>
 
