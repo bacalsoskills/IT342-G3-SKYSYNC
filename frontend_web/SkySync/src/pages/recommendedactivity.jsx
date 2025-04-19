@@ -5,14 +5,13 @@ import { useNavigate } from "react-router-dom";
 
 const RecommendedActivity = () => {
   const [city, setCity] = useState(() => {
-    // Retrieve the last saved city from localStorage or default to "Cebu"
     return localStorage.getItem("lastCity") || "Cebu";
   });
   const [activityData, setActivityData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userId"); // Retrieve the user ID from localStorage
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     const fetchActivityData = async () => {
@@ -35,8 +34,10 @@ const RecommendedActivity = () => {
 
   const handleAddActivity = async (activity) => {
     try {
-      await saveActivityForUser(userId, activity);
+      const savedActivity = await saveActivityForUser(userId, activity); // Save the activity and get the saved activity
       message.success("Activity added successfully!");
+      // Navigate to the schedule activity page with the saved activity details
+      navigate("/scheduleactivity", { state: { activity: savedActivity } });
     } catch (err) {
       console.error("Error adding activity:", err);
       message.error("Failed to add activity. Please try again.");
@@ -70,7 +71,7 @@ const RecommendedActivity = () => {
           <List
             header={<strong>Recommended Activities:</strong>}
             bordered
-            dataSource={activityData} // Display all activities
+            dataSource={activityData}
             renderItem={(activity) => (
               <List.Item>
                 <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
@@ -82,7 +83,7 @@ const RecommendedActivity = () => {
                   </div>
                   <Button
                     type="primary"
-                    onClick={() => handleAddActivity(activity)} // Call handleAddActivity on click
+                    onClick={() => handleAddActivity(activity)}
                   >
                     Add Activity
                   </Button>

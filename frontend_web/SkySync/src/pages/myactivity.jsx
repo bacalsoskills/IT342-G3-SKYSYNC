@@ -59,11 +59,19 @@ const MyActivity = () => {
             dataSource={activities}
             renderItem={(activity) => (
               <List.Item>
-                <div>
-                  <strong>{activity.name}</strong>
-                  <div style={{ color: "#666", marginTop: "4px" }}>
-                    {activity.description}
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <div>
+                    <strong>{activity.name}</strong>
+                    <div style={{ color: "#666", marginTop: "4px" }}>
+                      {activity.description}
+                    </div>
                   </div>
+                  <Button
+                    type="primary"
+                    onClick={() => navigate(`/activitydetails`, { state: { activity } })}
+                  >
+                    View Details
+                  </Button>
                 </div>
               </List.Item>
             )}

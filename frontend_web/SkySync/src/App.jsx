@@ -12,6 +12,9 @@ import WeeklyForecast from './pages/weeklyforecast'; // Import the WeeklyForecas
 import RecommendedWardrobe from './pages/recommendedwardrobe'; // Import the RecommendedWardrobe component
 import RecommendedActivity from './pages/recommendedactivity'; // Import the RecommendedActivity component
 import MyActivity from './pages/myactivity'; // Import the MyActivity component
+import ScheduleActivity from "./pages/scheduleactivity"; // Import the ScheduleActivity component
+import ActivityDetails from "./pages/activitydetails"; // Import the ActivityDetails component
+import NotificationPage from './pages/notification'; // Import the NotificationPage component
 
 function App() {
   return (
@@ -31,6 +34,9 @@ function App() {
           <Route path="/recommendedwardrobe" element={<RecommendedWardrobe />} /> {/* Add RecommendedWardrobe route */}
           <Route path="/recommendedactivity" element={<RecommendedActivity />} /> {/* Add RecommendedActivity route */}
           <Route path="/myactivity" element={<MyActivity />} /> {/* Add MyActivity route */}
+          <Route path="/scheduleactivity" element={<ScheduleActivity />} /> {/* Add ScheduleActivity route */}
+          <Route path="/activitydetails" element={<ActivityDetails />} /> {/* Add ActivityDetails route */}
+          <Route path="/notifications" element={<NotificationPage />} /> {/* Add NotificationPage route */}
         </Routes>
       </div>
     </Router>

@@ -2,6 +2,7 @@ package edu.cit.Skysync.entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.CascadeType;
@@ -46,6 +47,7 @@ public class NotificationEntity {
     // Relationship to Schedule (optional, nullable)
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "schedule_id", nullable = true)
+    @JsonIgnore // Prevent serialization of the schedule field
     private ScheduleEntity schedule;
 
     // Utility method to mark the notification as read

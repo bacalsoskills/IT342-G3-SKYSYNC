@@ -31,7 +31,7 @@ export const saveActivityForUser = async (userId, activity) => {
         },
       }
     );
-    return response.data;
+    return response.data; // Return the saved activity with its activityId
   } catch (error) {
     console.error("Error saving activity for user:", error);
     throw error;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Spin, Alert, List, Tag, Button } from "antd"; // Import Button
+import { Card, Spin, Alert, List, Tag, Button, message } from "antd"; // Import Button and message
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { getWardrobeRecommendationByCity } from "../services/wardrobeService";
 
@@ -30,6 +30,18 @@ const RecommendedWardrobe = () => {
 
     fetchWardrobeData();
   }, [city]);
+
+  const handleAddActivity = async (activity) => {
+    try {
+      const savedActivity = await saveActivityForUser(userId, activity); // Save the activity and get the saved activity
+      message.success("Activity added successfully!");
+      // Navigate to the schedule activity page with the saved activity details
+      navigate("/scheduleactivity", { state: { activity: savedActivity } });
+    } catch (err) {
+      console.error("Error adding activity:", err);
+      message.error("Failed to add activity. Please try again.");
+    }
+  };
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
