@@ -1,6 +1,7 @@
 package edu.cit.Skysync.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.cit.Skysync.dto.ActivityDTO;
 import edu.cit.Skysync.dto.DailyWeatherDTO;
 import edu.cit.Skysync.entity.ActivityEntity;
+import edu.cit.Skysync.entity.RecommendedActivityEntity;
 import edu.cit.Skysync.service.ActivityService;
 import edu.cit.Skysync.service.UserService;
 import edu.cit.Skysync.service.WeatherService;
@@ -31,12 +33,6 @@ public class ActivityController {
         this.activityService = activityService;
         this.userService = userService;
         this.weatherService = weatherService;
-    }
-
-    // Get recommended activities based on weather code
-    @GetMapping
-    public List<ActivityEntity> getRecommendedActivities(@RequestParam int weatherCode) {
-        return activityService.getRecommendedActivities(weatherCode);
     }
 
     // Save an activity for a user
@@ -59,19 +55,22 @@ public class ActivityController {
     // Get activity recommendations by city
     @GetMapping("/recommendationsByCity")
     public ResponseEntity<List<ActivityDTO>> getRecommendationsByCity(@RequestParam String city) {
-        List<DailyWeatherDTO> weather = weatherService.getWeeklyWeatherByCity(city);
+        var weather = weatherService.getWeeklyWeatherByCity(city);
         if (weather != null && !weather.isEmpty()) {
             int weatherCode = weather.get(0).getWeatherCode(); // Get today's weather code
-            List<ActivityEntity> activities = activityService.getRecommendedActivities(weatherCode);
+            String weatherCondition = activityService.getWeatherDescription(weatherCode);
 
-            // Map ActivityEntity to ActivityDTO
-            List<ActivityDTO> activityDTOs = activities.stream()
-                .map(activity -> new ActivityDTO(
-                    activity.getName(),
-                    activity.getDescription(),
-                    activity.getWeatherCondition()
+            // Fetch recommendations from the database
+            List<RecommendedActivityEntity> recommendations = activityService.getRecommendedActivities(weatherCondition);
+
+            // Map RecommendedActivityEntity to ActivityDTO
+            List<ActivityDTO> activityDTOs = recommendations.stream()
+                .map(rec -> new ActivityDTO(
+                    rec.getName(),
+                    rec.getDescription(),
+                    rec.getWeatherCondition()
                 ))
-                .toList();
+                .collect(Collectors.toList());
 
             return ResponseEntity.ok(activityDTOs);
         }

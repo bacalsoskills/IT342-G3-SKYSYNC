@@ -15,6 +15,8 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "activity_entity")  // Explicit table name
@@ -33,9 +35,11 @@ public class ActivityEntity {
     
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore // Prevent circular reference
     private UserEntity user;
 
     @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<ScheduleEntity> schedules;
 
     public ActivityEntity(String name, String description, String weatherCondition) {
@@ -45,6 +49,10 @@ public class ActivityEntity {
     }
 
     // Getters
+    public Long getActivityId() {
+        return activityId;
+    }
+
     public String getName() {
         return name;
     }
@@ -57,7 +65,15 @@ public class ActivityEntity {
         return weatherCondition;
     }
 
+    public UserEntity getUser() {
+        return user;
+    }
+
     // Setters
+    public void setActivityId(Long activityId) {
+        this.activityId = activityId;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -68,5 +84,9 @@ public class ActivityEntity {
 
     public void setWeatherCondition(String weatherCondition) {
         this.weatherCondition = weatherCondition;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 }

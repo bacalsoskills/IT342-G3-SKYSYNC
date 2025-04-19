@@ -7,26 +7,25 @@ public class ScheduleRequestDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    // Getters
+    // Getters and setters
     public Long getActivityId() {
         return activityId;
+    }
+
+    public void setActivityId(Long activityId) {
+        this.activityId = activityId;
     }
 
     public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    // Setters
-    public void setActivityId(Long activityId) {
-        this.activityId = activityId;
-    }
-
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
     }
 
     public void setEndTime(LocalDateTime endTime) {

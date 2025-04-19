@@ -44,13 +44,6 @@ public class SkysyncApplication {
     }
 
     @Bean
-    public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory) {
-        SchedulerFactoryBean factory = new SchedulerFactoryBean();
-        factory.setJobFactory(jobFactory);
-        return factory;
-    }
-
-    @Bean
     public JobDetail dailyWeatherNotificationJobDetail() {
         return JobBuilder.newJob(DailyWeatherNotificationService.class)
                 .withIdentity("dailyWeatherNotificationJob")
@@ -63,14 +56,14 @@ public class SkysyncApplication {
         return TriggerBuilder.newTrigger()
                 .forJob(dailyWeatherNotificationJobDetail)
                 .withIdentity("dailyWeatherNotificationTrigger")
-                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(18, 50)) // Adjust time for testing
+                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(03, 11)) // Adjust time for testing
                 .build();
     }
 
-        @Bean
+    @Bean
     public Scheduler startScheduler(SchedulerFactoryBean schedulerFactoryBean, JobDetail dailyWeatherNotificationJobDetail, Trigger dailyWeatherNotificationTrigger) throws Exception {
         Scheduler scheduler = schedulerFactoryBean.getScheduler();
-        
+
         // Register the JobDetail and Trigger with the scheduler
         if (!scheduler.checkExists(dailyWeatherNotificationJobDetail.getKey())) {
             scheduler.addJob(dailyWeatherNotificationJobDetail, true);
