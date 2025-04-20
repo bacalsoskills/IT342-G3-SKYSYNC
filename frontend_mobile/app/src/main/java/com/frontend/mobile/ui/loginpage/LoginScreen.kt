@@ -26,10 +26,11 @@ import com.frontend.mobile.api.ApiClient
 import com.frontend.mobile.api.ApiService
 import com.frontend.mobile.model.AuthResponse
 import android.widget.Toast
+import android.content.Context
 
 @Composable
 fun LoginScreen(
-    onLoginSuccess: (String) -> Unit, // Pass the token to the next screen
+    onLoginSuccess: () -> Unit, // Navigate to the next screen
     onRegisterClick: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }
@@ -39,12 +40,12 @@ fun LoginScreen(
     var passwordError by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    val apiService = ApiClient.getClient().create(ApiService::class.java)
 
     val gradientBackground = Brush.verticalGradient(
         colors = listOf(Color(0xFFB2FEFA), Color(0xFF0ED2F7))
     )
-
-    val apiService = ApiClient.getClient().create(ApiService::class.java)
 
     Box(
         modifier = Modifier
@@ -138,8 +139,16 @@ fun LoginScreen(
                             override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
                                 if (response.isSuccessful) {
                                     val authResponse = response.body()
-                                    Toast.makeText(context, "Welcome, ${authResponse?.email}", Toast.LENGTH_SHORT).show()
-                                    onLoginSuccess(authResponse?.token ?: "") // Pass the token
+                                    authResponse?.let {
+                                        // Save token and userId in SharedPreferences
+                                        sharedPreferences.edit()
+                                            .putString("authToken", it.token)
+                                            .putLong("userId", it.userId)
+                                            .apply()
+
+                                        Toast.makeText(context, "Welcome, ${it.email}", Toast.LENGTH_SHORT).show()
+                                        onLoginSuccess() // Navigate to the next screen
+                                    }
                                 } else {
                                     Toast.makeText(context, "Invalid credentials", Toast.LENGTH_SHORT).show()
                                 }
