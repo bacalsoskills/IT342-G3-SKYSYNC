@@ -1,5 +1,7 @@
 package com.frontend.mobile.ui.activitypage
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,12 +16,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.frontend.mobile.R
+import com.frontend.mobile.api.ApiClient
+import com.frontend.mobile.api.ApiService
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
 fun HomePage(navController: NavHostController) {
@@ -29,6 +38,9 @@ fun HomePage(navController: NavHostController) {
 
     val scrollState = rememberScrollState()
     var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    val apiService = ApiClient.getClient().create(ApiService::class.java)
 
     Column(
         modifier = Modifier
@@ -87,6 +99,39 @@ fun HomePage(navController: NavHostController) {
                         navController.navigate("about_us")
                     }) {
                         Text("About Us")
+                    }
+                    DropdownMenuItem(onClick = {
+                        expanded = false
+                        // Logout Functionality
+                        val token = sharedPreferences.getString("authToken", null)
+                        if (token != null) {
+                            apiService.logoutUser("Bearer $token").enqueue(object : Callback<ResponseBody> {
+                                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                                    if (response.isSuccessful) {
+                                        // Clear SharedPreferences
+                                        sharedPreferences.edit().clear().apply()
+                                        // Navigate to Login Page
+                                        navController.navigate("login") {
+                                            popUpTo("home") { inclusive = true }
+                                        }
+                                        Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(context, "Failed to log out", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+
+                                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                                    Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            })
+                        } else {
+                            Toast.makeText(context, "No token found. Please log in again.", Toast.LENGTH_SHORT).show()
+                            navController.navigate("login") {
+                                popUpTo("home") { inclusive = true }
+                            }
+                        }
+                    }) {
+                        Text("Logout")
                     }
                 }
             }

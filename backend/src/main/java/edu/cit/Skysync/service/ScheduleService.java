@@ -1,8 +1,8 @@
 package edu.cit.Skysync.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.time.format.DateTimeFormatter; // Import for formatting
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
@@ -91,7 +91,7 @@ public class ScheduleService {
             JobDetail jobDetail = JobBuilder.newJob(NotificationJob.class)
                 .withIdentity("NotificationJob_" + schedule.getScheduleId(), "Notifications")
                 .usingJobData("userId", schedule.getUser().getId())
-                .usingJobData("message", "New schedule: " + schedule.getActivity().getName() + " at " + formattedTime)
+                .usingJobData("message", "Reminder: " + schedule.getActivity().getName() + " starts at " + formattedTime)
                 .build();
 
             // Create a Trigger for the job
