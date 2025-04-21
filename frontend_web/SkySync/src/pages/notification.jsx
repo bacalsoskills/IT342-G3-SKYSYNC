@@ -8,7 +8,7 @@ const NotificationPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const userId = localStorage.getItem("userId"); // Retrieve the user ID from localStorage
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     if (userId) {
@@ -20,7 +20,7 @@ const NotificationPage = () => {
     setLoading(true);
     try {
       const data = await getUserNotifications(userId);
-      setNotifications(data); // Notifications are already sorted in descending order
+      setNotifications(data);
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
     } finally {
@@ -29,28 +29,36 @@ const NotificationPage = () => {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <Button type="default" onClick={() => navigate("/dashboard")} style={{ marginBottom: "20px" }}>
-        Back to Dashboard
-      </Button>
-      <h2>All Notifications</h2>
-      {loading ? (
-        <Spin size="large" />
-      ) : notifications.length > 0 ? (
-        <List
-          bordered
-          dataSource={notifications}
-          renderItem={(notification) => (
-            <List.Item>
-              <div>
-                <strong>{notification.message}</strong>
-              </div>
-            </List.Item>
+    <div className="container-fluid" style={{ minHeight: "100vh", background: "#fff", paddingTop: "24px" }}>
+      <div className="row justify-content-center">
+        <div className="col-12 col-md-10 col-lg-8">
+          <div className="d-flex justify-content-start mb-3">
+            <Button type="default" onClick={() => navigate("/dashboard")}>
+              Back to Dashboard
+            </Button>
+          </div>
+          <h2 className="mb-3">All Notifications</h2>
+          {loading ? (
+            <div className="text-center py-5">
+              <Spin size="large" />
+            </div>
+          ) : notifications.length > 0 ? (
+            <List
+              bordered
+              dataSource={notifications}
+              renderItem={(notification) => (
+                <List.Item>
+                  <div>
+                    <strong>{notification.message}</strong>
+                  </div>
+                </List.Item>
+              )}
+            />
+          ) : (
+            <p>No notifications available.</p>
           )}
-        />
-      ) : (
-        <p>No notifications available.</p>
-      )}
+        </div>
+      </div>
     </div>
   );
 };

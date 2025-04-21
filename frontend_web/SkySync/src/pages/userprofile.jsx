@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Input, Form, message, Modal } from "antd"; // Add Modal to imports
+import { Button, Input, Form, message, Modal } from "antd";
 import { getUserDetails, updateUserDetails, deleteUser } from "../services/userService";
 import { useNavigate } from "react-router-dom";
 
@@ -10,7 +10,7 @@ const UserProfile = () => {
     email: "",
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false); // State for delete modal
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -28,7 +28,7 @@ const UserProfile = () => {
       try {
         const userDetails = await getUserDetails(userId, authToken);
         setUser(userDetails);
-        form.setFieldsValue(userDetails); // Populate form with user details
+        form.setFieldsValue(userDetails);
       } catch (error) {
         console.error("Failed to fetch user details:", error);
         message.error("Failed to load user profile.");
@@ -65,11 +65,8 @@ const UserProfile = () => {
         ...(values.newPassword && { password: values.newPassword }),
       };
 
-      console.log("Sending updated user details:", updatedUser);
-
       const response = await updateUserDetails(userId, authToken, updatedUser);
 
-      // Update the token in localStorage
       if (response.token) {
         localStorage.setItem("authToken", response.token);
       }
@@ -97,7 +94,7 @@ const UserProfile = () => {
   };
 
   const handleBackToDashboard = () => {
-    navigate("/dashboard"); // Navigate back to the dashboard
+    navigate("/dashboard");
   };
 
   const handleDeleteAccount = async () => {
@@ -113,13 +110,11 @@ const UserProfile = () => {
       await deleteUser(userId, authToken);
       message.success("Account deleted successfully.");
 
-      // Clear user data from local storage
       localStorage.removeItem("authToken");
       localStorage.removeItem("userId");
       localStorage.removeItem("userFirstName");
       localStorage.removeItem("userLastName");
 
-      // Navigate to home page
       navigate("/");
     } catch (error) {
       console.error("Failed to delete account:", error);
@@ -136,97 +131,119 @@ const UserProfile = () => {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-      <h1>User Profile</h1>
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSaveChanges}
-        initialValues={user}
+    <>
+      <div
+        className="userprofile-background u-section-image"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
       >
-        <Form.Item
-          label="First Name"
-          name="firstName"
-          rules={[{ required: true, message: "First name is required" }]}
-        >
-          <Input disabled={!isEditing} />
-        </Form.Item>
-        <Form.Item
-          label="Last Name"
-          name="lastName"
-          rules={[{ required: true, message: "Last name is required" }]}
-        >
-          <Input disabled={!isEditing} />
-        </Form.Item>
-        <Form.Item
-          label="Email"
-          name="email"
-          rules={[
-            { required: true, message: "Email is required" },
-            { type: "email", message: "Please enter a valid email" },
-          ]}
-        >
-          <Input disabled={!isEditing} />
-        </Form.Item>
-        {isEditing && (
-          <>
-            <Form.Item
-              label="New Password"
-              name="newPassword"
-              rules={[
-                { min: 6, message: "Password must be at least 6 characters" },
-              ]}
-            >
-              <Input.Password />
-            </Form.Item>
-            <Form.Item
-              label="Confirm Password"
-              name="confirmPassword"
-              rules={[
-                { min: 6, message: "Password must be at least 6 characters" },
-              ]}
-            >
-              <Input.Password />
-            </Form.Item>
-          </>
-        )}
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Button type="primary" onClick={toggleEdit}>
-            {isEditing ? "Cancel" : "Edit"}
-          </Button>
-          {isEditing && (
-            <Button type="primary" htmlType="submit">
-              Save Changes
-            </Button>
-          )}
-        </div>
-      </Form>
-      <div style={{ marginTop: "20px", display: "flex", justifyContent: "space-between" }}>
-        <Button type="default" onClick={handleBackToDashboard}>
-          Back to Dashboard
-        </Button>
-        <Button
-          type="danger"
-          onClick={showDeleteConfirmation}
-          style={{ marginLeft: "10px" }}
-        >
-          Delete Account
-        </Button>
-      </div>
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-12 col-md-8 col-lg-6" style={{ padding: "20px", background: "#fff", borderRadius: "8px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
+                <h2 className="text-center">User Profile</h2>
+                <Form
+                  form={form}
+                  layout="vertical"
+                  onFinish={handleSaveChanges}
+                  initialValues={user}
+                >
+                  <Form.Item
+                    label="First Name"
+                    name="firstName"
+                    rules={[{ required: true, message: "First name is required" }]}
+                  >
+                    <Input disabled={!isEditing} />
+                  </Form.Item>
+                  <Form.Item
+                    label="Last Name"
+                    name="lastName"
+                    rules={[{ required: true, message: "Last name is required" }]}
+                  >
+                    <Input disabled={!isEditing} />
+                  </Form.Item>
+                  <Form.Item
+                    label="Email"
+                    name="email"
+                    rules={[
+                      { required: true, message: "Email is required" },
+                      { type: "email", message: "Please enter a valid email" },
+                    ]}
+                  >
+                    <Input disabled={!isEditing} />
+                  </Form.Item>
+                  {isEditing && (
+                    <>
+                      <Form.Item
+                        label="New Password"
+                        name="newPassword"
+                        rules={[
+                          { min: 6, message: "Password must be at least 6 characters" },
+                        ]}
+                      >
+                        <Input.Password />
+                      </Form.Item>
+                      <Form.Item
+                        label="Confirm Password"
+                        name="confirmPassword"
+                        rules={[
+                          { min: 6, message: "Password must be at least 6 characters" },
+                        ]}
+                      >
+                        <Input.Password />
+                      </Form.Item>
+                    </>
+                  )}
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <Button type="primary" onClick={toggleEdit}>
+                      {isEditing ? "Cancel" : "Edit"}
+                    </Button>
+                    {isEditing && (
+                      <Button type="primary" htmlType="submit">
+                        Save Changes
+                      </Button>
+                    )}
+                  </div>
+                </Form>
+                <div style={{ marginTop: "20px", display: "flex", justifyContent: "space-between" }}>
+                  <Button type="default" onClick={handleBackToDashboard}>
+                    Back to Dashboard
+                  </Button>
+                  <Button
+                    type="danger"
+                    onClick={showDeleteConfirmation}
+                    style={{ marginLeft: "10px" }}
+                  >
+                    Delete Account
+                  </Button>
+                </div>
 
-      {/* Delete Confirmation Modal */}
-      <Modal
-        title="Confirm Account Deletion"
-        visible={isDeleteModalVisible}
-        onOk={handleDeleteAccount}
-        onCancel={handleCancelDelete}
-        okText="Yes, Delete"
-        cancelText="No, Keep Account"
-        okButtonProps={{ danger: true }}
-      >
-        <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-      </Modal>
-    </div>
+                <Modal
+                  title="Confirm Account Deletion"
+                  open={isDeleteModalVisible}
+                  onOk={handleDeleteAccount}
+                  onCancel={handleCancelDelete}
+                  okText="Yes, Delete"
+                  cancelText="No, Keep Account"
+                  okButtonProps={{ danger: true }}
+                >
+                  <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                </Modal>
+              </div>
+            </div>
+          </div>
+        </div>
+    </>
   );
 };
 
