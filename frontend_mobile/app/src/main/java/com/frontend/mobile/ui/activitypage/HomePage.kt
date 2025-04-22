@@ -1,6 +1,7 @@
 package com.frontend.mobile.ui.activitypage
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,6 +30,7 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.frontend.mobile.model.DailyWeatherDTO
 
 @Composable
 fun HomePage(navController: NavHostController) {
@@ -41,6 +43,48 @@ fun HomePage(navController: NavHostController) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     val apiService = ApiClient.getClient().create(ApiService::class.java)
+
+    // State to hold weather data
+    var weatherData by remember { mutableStateOf<DailyWeatherDTO?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // State for city input
+    var cityInput by remember { mutableStateOf("Cebu") } // Default input is "Cebu"
+    var city by remember { mutableStateOf("Cebu") } // Default city for fetching data
+
+    // Fetch weather data
+    LaunchedEffect(city) {
+        if (city.isNotEmpty()) {
+            val token = sharedPreferences.getString("authToken", null)
+            if (token == null) {
+                errorMessage = "Authentication token not found"
+                isLoading = false
+                return@LaunchedEffect
+            }
+            isLoading = true
+            apiService.getTodaysWeatherByCity(city, "Bearer $token").enqueue(object : Callback<DailyWeatherDTO> {
+                override fun onResponse(call: Call<DailyWeatherDTO>, response: Response<DailyWeatherDTO>) {
+                    if (response.isSuccessful) {
+                        Log.d("API Response", "Body: ${response.body()}")
+                        weatherData = response.body()
+                        isLoading = false
+                    } else {
+                        val errorBody = response.errorBody()?.string()
+                        Log.e("API Error", "Code: ${response.code()}, Error: $errorBody")
+                        errorMessage = "Error: ${errorBody ?: "Unknown error"}"
+                        isLoading = false
+                    }
+                }
+
+                override fun onFailure(call: Call<DailyWeatherDTO>, t: Throwable) {
+                    Log.e("API Failure", "Error: ${t.message}")
+                    errorMessage = "Error: ${t.message}"
+                    isLoading = false
+                }
+            })
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -137,11 +181,63 @@ fun HomePage(navController: NavHostController) {
             }
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // City Input Field
+        OutlinedTextField(
+            value = cityInput,
+            onValueChange = { cityInput = it },
+            label = { Text("Enter City") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.White,
+                unfocusedBorderColor = Color.White,
+                textColor = Color.White,
+                cursorColor = Color.White
+            )
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Enter Button
+        Button(
+            onClick = {
+                city = cityInput // Update the city state to trigger the API call
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF2D9CDB))
+        ) {
+            Text("Enter", color = Color.White)
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // Location & Date
-        Text("Philippines, Cebu City", color = Color.White, fontSize = 18.sp)
-        Text("Cebu, 3 March 2025", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+        if (weatherData != null) {
+            Text(
+                text = "${city.capitalize()}",
+                color = Color.White,
+                fontSize = 18.sp
+            )
+            Text(
+                text = "${weatherData!!.date}, ${weatherData!!.dayOfWeek}",
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 14.sp
+            )
+        } else if (errorMessage != null) {
+            Text(
+                text = errorMessage!!,
+                color = Color.Red,
+                fontSize = 16.sp
+            )
+        } else if (isLoading) {
+            Text(
+                text = "Loading location...",
+                color = Color.White,
+                fontSize = 18.sp
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -152,14 +248,38 @@ fun HomePage(navController: NavHostController) {
                 .height(150.dp),
             contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .background(Color(0xFF87CEEB), shape = RoundedCornerShape(16.dp))
-                    .padding(horizontal = 50.dp, vertical = 16.dp)
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("30°C", fontSize = 48.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                    Text("Cloudy", fontSize = 20.sp, color = Color.White)
+            when {
+                isLoading -> {
+                    CircularProgressIndicator(color = Color.White)
+                }
+                errorMessage != null -> {
+                    Text(errorMessage!!, color = Color.Red, fontSize = 16.sp)
+                }
+                weatherData != null -> {
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFF87CEEB), shape = RoundedCornerShape(16.dp))
+                            .padding(horizontal = 50.dp, vertical = 16.dp)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                weatherData!!.weatherDescription,
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                "Max: ${weatherData!!.maxTemp}°C",
+                                fontSize = 20.sp,
+                                color = Color.White
+                            )
+                            Text(
+                                "Min: ${weatherData!!.minTemp}°C",
+                                fontSize = 20.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
                 }
             }
         }
