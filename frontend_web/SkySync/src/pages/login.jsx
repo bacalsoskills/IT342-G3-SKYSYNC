@@ -5,20 +5,32 @@ import image1 from "../assets/alyssa-strohmann-TS--uNw-JqE-unsplash1.png";
 import image2 from "../assets/alyssa-strohmann-TS--uNw-JqE-unsplash2.png";
 import image3 from "../assets/alyssa-strohmann-TS--uNw-JqE-unsplash3.png";
 import { login } from "../services/authService";
+import { Modal } from "antd";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [countdown, setCountdown] = useState(3);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const data = await login(email, password);
-      alert("Login successful!");
-      localStorage.setItem("authToken", data.token); // Store the token in local storage
-      localStorage.setItem("userId", data.userId); // Store the userId
-      window.location.href = "/dashboard"; // Redirect to the dashboard
+      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("userId", data.userId);
+      setModalVisible(true);
+      setCountdown(3);
+      let counter = 3;
+      const interval = setInterval(() => {
+        counter -= 1;
+        setCountdown(counter);
+        if (counter === 0) {
+          clearInterval(interval);
+          window.location.href = "/dashboard";
+        }
+      }, 1000);
     } catch (err) {
       setError(err.message);
     }
@@ -31,6 +43,16 @@ const Login = () => {
 
   return (
     <section className="vh-100 u-clearfix u-valign-top-lg u-valign-top-md u-valign-top-sm u-valign-top-xs u-section-1" id="block-1">
+      <Modal
+        open={modalVisible}
+        footer={null}
+        closable={false}
+        centered
+        bodyStyle={{ textAlign: "center", fontSize: "18px" }}
+      >
+        Login successful!<br />
+        Redirecting in {countdown}
+      </Modal>
       <div className="data-layout-selected u-clearfix u-expanded-width u-layout-wrap u-layout-wrap-1">
         <div className="u-layout">
           <div className="u-layout-row">
