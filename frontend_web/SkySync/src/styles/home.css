@@ -1,3 +1,17 @@
+.userprofile-background {
+  background-color: #f5f5f5;
+}
+
+.userprofile-container {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 30px;
+  max-width: 600px;
+  margin: 50px auto;
+  position: relative;
+}
+
 .u-section-image {
   background-image: url('../assets/Rectangle.png');
   background-size: cover;
