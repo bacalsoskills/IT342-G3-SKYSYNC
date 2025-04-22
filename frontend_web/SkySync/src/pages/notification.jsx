@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { List, Spin, Button } from "antd";
 import { getUserNotifications } from "../services/notificationService";
 import { useNavigate } from "react-router-dom";
+import UserHeader from "../components/userHeader";
 
 const NotificationPage = () => {
   const [notifications, setNotifications] = useState([]);
@@ -29,6 +30,8 @@ const NotificationPage = () => {
   };
 
   return (
+    <div>
+      <UserHeader />
     <div className="container-fluid" style={{ minHeight: "100vh", background: "#fff", paddingTop: "24px" }}>
       <div className="row justify-content-center">
         <div className="col-12 col-md-10 col-lg-8">
@@ -59,6 +62,7 @@ const NotificationPage = () => {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 };

@@ -4,30 +4,93 @@ import "../styles/nicepage.css";
 import groupLogo from "../assets/Group362.png";
 import heroImage from "../assets/hero.png";
 import { registerUser } from "../services/userService";
+import { Modal } from "antd";
 
 const Register = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [countdown, setCountdown] = useState(3);
+  const [passwordError, setPasswordError] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setPasswordError(true); // Trigger error state
+      return;
+    }
+    setPasswordError(false); // Reset error if passwords match
     try {
       const user = { firstName, lastName, email, password };
       await registerUser(user);
-      setSuccess("Registration successful! You can now log in.");
-      setError("");
+      setModalVisible(true);
+      setCountdown(3);
+      let counter = 3;
+      const interval = setInterval(() => {
+        counter -= 1;
+        setCountdown(counter);
+        if (counter === 0) {
+          clearInterval(interval);
+          window.location.href = "/login";
+        }
+      }, 1000);
     } catch (err) {
       setError(err.message);
-      setSuccess("");
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    if (passwordError) {
+      setPasswordError(false); // Reset error if user starts typing
+    }
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    setConfirmPassword(e.target.value);
+    if (passwordError) {
+      setPasswordError(false); // Reset error if user starts typing
     }
   };
 
   return (
     <section className="vh-100 u-clearfix u-section-1" id="block-1">
+      {/* Registration Success Modal */}
+      <Modal
+        open={modalVisible}
+        footer={null}
+        closable={false}
+        centered
+        bodyStyle={{ textAlign: "center", fontSize: "18px" }}
+      >
+        Registration successful!<br />
+        Redirecting to login in {countdown}
+      </Modal>
+      {/* Password Mismatch Modal */}
+      <Modal
+        open={passwordError}
+        footer={[
+          <div key="ok" style={{ display: "flex", justifyContent: "center" }}>
+            <button
+              className="ant-btn ant-btn-primary"
+              onClick={() => setPasswordError(false)}
+              style={{ width: 80 }}
+            >
+              OK
+            </button>
+          </div>
+        ]}
+        closable={false}
+        centered
+        onCancel={() => setPasswordError(false)}
+        bodyStyle={{ textAlign: "center", fontSize: "18px", color: "red" }}
+      >
+        Passwords don't match
+      </Modal>
       <div className="m-0 data-layout-selected u-clearfix u-expanded-width u-layout-wrap u-layout-wrap-1">
         <div className="u-layout">
           <div className="vh-100 u-layout-row">
@@ -37,9 +100,9 @@ const Register = () => {
                   style={{ boxShadow: "10px 10px 15px rgba(0, 0, 0, 0.3)" }}
                   className="rounded-3 py-4 u-form u-login-control u-white u-form-1"
                 >
-                  <h3 className="m-auto u-align-center u-custom-font u-font-montserrat u-text u-text-default u-text-1">
+                  <h4 className="m-auto u-align-center u-custom-font u-font-montserrat u-text u-text-default u-text-1">
                     Register
-                  </h3>
+                  </h4>
                   <form
                     onSubmit={handleRegister}
                     className="u-clearfix u-form-custom-backend u-form-spacing-20 u-form-vertical u-inner-form"
@@ -97,13 +160,28 @@ const Register = () => {
                         name="password"
                         className="u-grey-5 u-input u-input-rectangle u-input-3"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={handlePasswordChange}
                         required
+                        minLength={6}
+                        style={passwordError ? { border: "1.5px solid red" } : {}}
                       />
                     </div>
 
-                    {error && <p style={{ color: "red" }}>{error}</p>}
-                    {success && <p style={{ color: "green" }}>{success}</p>}
+                    <div className="u-form-group u-form-password">
+                      <label htmlFor="confirm-password">Confirm Password *</label>
+                      <input
+                        type="password"
+                        placeholder="Confirm your password"
+                        id="confirm-password"
+                        name="confirmPassword"
+                        className="u-grey-5 u-input u-input-rectangle u-input-3"
+                        value={confirmPassword}
+                        onChange={handleConfirmPasswordChange}
+                        required
+                        minLength={6}
+                        style={passwordError ? { border: "1.5px solid red" } : {}}
+                      />
+                    </div>
 
                     <div className="u-align-center u-form-group u-form-submit">
                       <button

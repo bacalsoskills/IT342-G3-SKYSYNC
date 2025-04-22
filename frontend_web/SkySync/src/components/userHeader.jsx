@@ -7,6 +7,11 @@ import { getUserDetails } from "../services/userService";
 import { logout } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 
+const capitalize = (str) => {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
 const UserHeader = () => {
   const [user, setUser] = useState({ firstName: "", lastName: "" });
   const [loading, setLoading] = useState(true);
@@ -153,21 +158,21 @@ const UserHeader = () => {
 
           {/* Account Menu and Notification */}
           <div className="d-none d-md-flex align-items-center">
-            {/* User Dropdown */}
-            <Dropdown overlay={userMenu} trigger={["click"]}>
-              <Button type="text" className="d-flex align-items-center me-3">
-                <UserOutlined className="me-2" />
-                {loading ? "Loading..." : `${user.firstName} ${user.lastName}`}
-              </Button>
-            </Dropdown>
-
             {/* Notification Dropdown */}
             <Dropdown overlay={notificationMenu} trigger={["click"]}>
-              <Badge count={notifications.length} offset={[10, 0]}>
+              <Badge count={notifications.length} offset={[-15, 0]}>
                 <Button type="text">
                   <BellOutlined style={{ fontSize: "20px", cursor: "pointer" }} />
                 </Button>
               </Badge>
+            </Dropdown>
+
+            {/* User Dropdown */}
+            <Dropdown overlay={userMenu} trigger={["click"]}>
+              <Button type="text" className="d-flex align-items-center ms-3">
+                <UserOutlined className="" style={{ marginRight: -4 }} />
+                {loading ? "Loading..." : `${capitalize(user.firstName)} ${capitalize(user.lastName)}`}
+              </Button>
             </Dropdown>
           </div>
         </nav>
