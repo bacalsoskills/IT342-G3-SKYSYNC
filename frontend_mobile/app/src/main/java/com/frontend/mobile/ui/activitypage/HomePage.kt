@@ -1,6 +1,7 @@
 package com.frontend.mobile.ui.activitypage
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,6 +30,9 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.frontend.mobile.model.DailyWeatherDTO
+import com.frontend.mobile.model.WardrobeRecommendation
+import com.frontend.mobile.model.ActivityDTO
 
 @Composable
 fun HomePage(navController: NavHostController) {
@@ -41,6 +45,109 @@ fun HomePage(navController: NavHostController) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     val apiService = ApiClient.getClient().create(ApiService::class.java)
+
+    // State to hold weather data
+    var weatherData by remember { mutableStateOf<DailyWeatherDTO?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // State for city input
+    var cityInput by remember { mutableStateOf("Cebu") } // Default input is "Cebu"
+    var city by remember { mutableStateOf("Cebu") } // Default city for fetching data
+
+    // State to hold wardrobe data
+    var wardrobeData by remember { mutableStateOf<WardrobeRecommendation?>(null) }
+
+    // State to hold activity data
+    var activityData by remember { mutableStateOf<List<ActivityDTO>>(emptyList()) }
+
+    // Fetch weather data
+    LaunchedEffect(city) {
+        if (city.isNotEmpty()) {
+            val token = sharedPreferences.getString("authToken", null)
+            if (token == null) {
+                errorMessage = "Authentication token not found"
+                isLoading = false
+                return@LaunchedEffect
+            }
+            isLoading = true
+            apiService.getTodaysWeatherByCity(city, "Bearer $token").enqueue(object : Callback<DailyWeatherDTO> {
+                override fun onResponse(call: Call<DailyWeatherDTO>, response: Response<DailyWeatherDTO>) {
+                    if (response.isSuccessful) {
+                        Log.d("API Response", "Body: ${response.body()}")
+                        weatherData = response.body()
+                        isLoading = false
+                    } else {
+                        val errorBody = response.errorBody()?.string()
+                        Log.e("API Error", "Code: ${response.code()}, Error: $errorBody")
+                        errorMessage = "Error: ${errorBody ?: "Unknown error"}"
+                        isLoading = false
+                    }
+                }
+
+                override fun onFailure(call: Call<DailyWeatherDTO>, t: Throwable) {
+                    Log.e("API Failure", "Error: ${t.message}")
+                    errorMessage = "Error: ${t.message}"
+                    isLoading = false
+                }
+            })
+        }
+    }
+
+    // Fetch wardrobe data
+    LaunchedEffect(city) {
+        if (city.isNotEmpty()) {
+            val token = sharedPreferences.getString("authToken", null)
+            if (token == null) {
+                errorMessage = "Authentication token not found"
+                isLoading = false
+                return@LaunchedEffect
+            }
+            apiService.getTodayWardrobeByCity(city, "Bearer $token").enqueue(object : Callback<List<WardrobeRecommendation>> {
+                override fun onResponse(
+                    call: Call<List<WardrobeRecommendation>>,
+                    response: Response<List<WardrobeRecommendation>>
+                ) {
+                    if (response.isSuccessful) {
+                        wardrobeData = response.body()?.firstOrNull() // Get the first theme
+                    } else {
+                        Log.e("API Error", "Code: ${response.code()}, Error: ${response.errorBody()?.string()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<List<WardrobeRecommendation>>, t: Throwable) {
+                    Log.e("API Failure", "Error: ${t.message}")
+                }
+            })
+        }
+    }
+
+    // Fetch activity data
+    LaunchedEffect(city) {
+        if (city.isNotEmpty()) {
+            val token = sharedPreferences.getString("authToken", null)
+            if (token == null) {
+                errorMessage = "Authentication token not found"
+                return@LaunchedEffect
+            }
+            apiService.getActivityRecommendationsByCity(city, "Bearer $token").enqueue(object : Callback<List<ActivityDTO>> {
+                override fun onResponse(
+                    call: Call<List<ActivityDTO>>,
+                    response: Response<List<ActivityDTO>>
+                ) {
+                    if (response.isSuccessful) {
+                        activityData = response.body()?.take(3) ?: emptyList() // Display only the first 3 activities
+                    } else {
+                        Log.e("API Error", "Code: ${response.code()}, Error: ${response.errorBody()?.string()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<List<ActivityDTO>>, t: Throwable) {
+                    Log.e("API Failure", "Error: ${t.message}")
+                }
+            })
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -137,11 +244,63 @@ fun HomePage(navController: NavHostController) {
             }
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // City Input Field
+        OutlinedTextField(
+            value = cityInput,
+            onValueChange = { cityInput = it },
+            label = { Text("Enter City") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.White,
+                unfocusedBorderColor = Color.White,
+                textColor = Color.White,
+                cursorColor = Color.White
+            )
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Enter Button
+        Button(
+            onClick = {
+                city = cityInput // Update the city state to trigger the API call
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF2D9CDB))
+        ) {
+            Text("Enter", color = Color.White)
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // Location & Date
-        Text("Philippines, Cebu City", color = Color.White, fontSize = 18.sp)
-        Text("Cebu, 3 March 2025", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+        if (weatherData != null) {
+            Text(
+                text = "${city.capitalize()}",
+                color = Color.White,
+                fontSize = 18.sp
+            )
+            Text(
+                text = "${weatherData!!.date}, ${weatherData!!.dayOfWeek}",
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 14.sp
+            )
+        } else if (errorMessage != null) {
+            Text(
+                text = errorMessage!!,
+                color = Color.Red,
+                fontSize = 16.sp
+            )
+        } else if (isLoading) {
+            Text(
+                text = "Loading location...",
+                color = Color.White,
+                fontSize = 18.sp
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -152,19 +311,44 @@ fun HomePage(navController: NavHostController) {
                 .height(150.dp),
             contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .background(Color(0xFF87CEEB), shape = RoundedCornerShape(16.dp))
-                    .padding(horizontal = 50.dp, vertical = 16.dp)
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("30°C", fontSize = 48.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                    Text("Cloudy", fontSize = 20.sp, color = Color.White)
+            when {
+                isLoading -> {
+                    CircularProgressIndicator(color = Color.White)
+                }
+                errorMessage != null -> {
+                    Text(errorMessage!!, color = Color.Red, fontSize = 16.sp)
+                }
+                weatherData != null -> {
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFF87CEEB), shape = RoundedCornerShape(16.dp))
+                            .padding(horizontal = 50.dp, vertical = 16.dp)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                weatherData!!.weatherDescription,
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                "Max: ${weatherData!!.maxTemp}°C",
+                                fontSize = 20.sp,
+                                color = Color.White
+                            )
+                            Text(
+                                "Min: ${weatherData!!.minTemp}°C",
+                                fontSize = 20.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
+
 
         // Wardrobe Section
         Text("Wardrobe", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold)
@@ -177,28 +361,82 @@ fun HomePage(navController: NavHostController) {
             IconCard(R.drawable.pants)
             IconCard(R.drawable.coat)
         }
+        if (wardrobeData != null) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                shape = RoundedCornerShape(12.dp),
+                elevation = 4.dp
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = wardrobeData!!.theme,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Clothing Items:", fontWeight = FontWeight.Bold, color = Color.Black)
+                    wardrobeData!!.clothingItems.forEach { item ->
+                        Text("- $item", color = Color.Black)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Descriptions:", fontWeight = FontWeight.Bold, color = Color.Black)
+                    wardrobeData!!.clothingDescriptions.forEach { description ->
+                        Text("- $description", color = Color.Black)
+                    }
+                }
+            }
+        } else {
+            Text("Fetching wardrobe recommendation...", color = Color.Gray)
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
         ViewMoreButton {
 
         }
+
 
         Spacer(modifier = Modifier.height(24.dp))
 
         // Activities Section
         Text("Activities", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            IconCard(R.drawable.walking)
-            IconCard(R.drawable.cycling)
-            IconCard(R.drawable.fishing)
+
+        if (activityData.isNotEmpty()) {
+            activityData.forEach { activity ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = 4.dp
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = activity.name,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = activity.description,
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            }
+        } else {
+            Text("Fetching activity recommendations...", color = Color.Gray)
         }
+
         Spacer(modifier = Modifier.height(8.dp))
         ViewMoreButton {
-            // Navigate to WeatherActivityPage with a weather code
-            navController.navigate("weather_activities/1") // Example weatherCode: 1
+            // Navigate to a detailed activity page if needed
+            navController.navigate("activities")
         }
 
         Spacer(modifier = Modifier.height(32.dp))
