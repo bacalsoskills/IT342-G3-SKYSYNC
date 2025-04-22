@@ -3,6 +3,8 @@ package com.frontend.mobile.api
 import com.frontend.mobile.model.User
 import com.frontend.mobile.model.AuthResponse
 import com.frontend.mobile.model.DailyWeatherDTO
+import com.frontend.mobile.model.WardrobeRecommendation
+import com.frontend.mobile.model.ActivityDTO
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
@@ -32,4 +34,16 @@ interface ApiService {
         @Query("city") city: String,
         @Header("Authorization") token: String
     ): Call<DailyWeatherDTO>
+
+    @GET("wardrobe/todayByCity")
+    fun getTodayWardrobeByCity(
+        @Query("city") city: String,
+        @Header("Authorization") token: String
+    ): Call<List<WardrobeRecommendation>>
+
+    @GET("api/activities/recommendationsByCity")
+    fun getActivityRecommendationsByCity(
+        @Query("city") city: String,
+        @Header("Authorization") token: String
+    ): Call<List<ActivityDTO>>
 }

@@ -31,6 +31,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import com.frontend.mobile.model.DailyWeatherDTO
+import com.frontend.mobile.model.WardrobeRecommendation
+import com.frontend.mobile.model.ActivityDTO
 
 @Composable
 fun HomePage(navController: NavHostController) {
@@ -52,6 +54,12 @@ fun HomePage(navController: NavHostController) {
     // State for city input
     var cityInput by remember { mutableStateOf("Cebu") } // Default input is "Cebu"
     var city by remember { mutableStateOf("Cebu") } // Default city for fetching data
+
+    // State to hold wardrobe data
+    var wardrobeData by remember { mutableStateOf<WardrobeRecommendation?>(null) }
+
+    // State to hold activity data
+    var activityData by remember { mutableStateOf<List<ActivityDTO>>(emptyList()) }
 
     // Fetch weather data
     LaunchedEffect(city) {
@@ -81,6 +89,61 @@ fun HomePage(navController: NavHostController) {
                     Log.e("API Failure", "Error: ${t.message}")
                     errorMessage = "Error: ${t.message}"
                     isLoading = false
+                }
+            })
+        }
+    }
+
+    // Fetch wardrobe data
+    LaunchedEffect(city) {
+        if (city.isNotEmpty()) {
+            val token = sharedPreferences.getString("authToken", null)
+            if (token == null) {
+                errorMessage = "Authentication token not found"
+                isLoading = false
+                return@LaunchedEffect
+            }
+            apiService.getTodayWardrobeByCity(city, "Bearer $token").enqueue(object : Callback<List<WardrobeRecommendation>> {
+                override fun onResponse(
+                    call: Call<List<WardrobeRecommendation>>,
+                    response: Response<List<WardrobeRecommendation>>
+                ) {
+                    if (response.isSuccessful) {
+                        wardrobeData = response.body()?.firstOrNull() // Get the first theme
+                    } else {
+                        Log.e("API Error", "Code: ${response.code()}, Error: ${response.errorBody()?.string()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<List<WardrobeRecommendation>>, t: Throwable) {
+                    Log.e("API Failure", "Error: ${t.message}")
+                }
+            })
+        }
+    }
+
+    // Fetch activity data
+    LaunchedEffect(city) {
+        if (city.isNotEmpty()) {
+            val token = sharedPreferences.getString("authToken", null)
+            if (token == null) {
+                errorMessage = "Authentication token not found"
+                return@LaunchedEffect
+            }
+            apiService.getActivityRecommendationsByCity(city, "Bearer $token").enqueue(object : Callback<List<ActivityDTO>> {
+                override fun onResponse(
+                    call: Call<List<ActivityDTO>>,
+                    response: Response<List<ActivityDTO>>
+                ) {
+                    if (response.isSuccessful) {
+                        activityData = response.body()?.take(3) ?: emptyList() // Display only the first 3 activities
+                    } else {
+                        Log.e("API Error", "Code: ${response.code()}, Error: ${response.errorBody()?.string()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<List<ActivityDTO>>, t: Throwable) {
+                    Log.e("API Failure", "Error: ${t.message}")
                 }
             })
         }
@@ -286,6 +349,7 @@ fun HomePage(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
+
         // Wardrobe Section
         Text("Wardrobe", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
@@ -297,28 +361,82 @@ fun HomePage(navController: NavHostController) {
             IconCard(R.drawable.pants)
             IconCard(R.drawable.coat)
         }
+        if (wardrobeData != null) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                shape = RoundedCornerShape(12.dp),
+                elevation = 4.dp
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = wardrobeData!!.theme,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Clothing Items:", fontWeight = FontWeight.Bold, color = Color.Black)
+                    wardrobeData!!.clothingItems.forEach { item ->
+                        Text("- $item", color = Color.Black)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Descriptions:", fontWeight = FontWeight.Bold, color = Color.Black)
+                    wardrobeData!!.clothingDescriptions.forEach { description ->
+                        Text("- $description", color = Color.Black)
+                    }
+                }
+            }
+        } else {
+            Text("Fetching wardrobe recommendation...", color = Color.Gray)
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
         ViewMoreButton {
 
         }
+
 
         Spacer(modifier = Modifier.height(24.dp))
 
         // Activities Section
         Text("Activities", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            IconCard(R.drawable.walking)
-            IconCard(R.drawable.cycling)
-            IconCard(R.drawable.fishing)
+
+        if (activityData.isNotEmpty()) {
+            activityData.forEach { activity ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = 4.dp
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = activity.name,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = activity.description,
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            }
+        } else {
+            Text("Fetching activity recommendations...", color = Color.Gray)
         }
+
         Spacer(modifier = Modifier.height(8.dp))
         ViewMoreButton {
-            // Navigate to WeatherActivityPage with a weather code
-            navController.navigate("weather_activities/1") // Example weatherCode: 1
+            // Navigate to a detailed activity page if needed
+            navController.navigate("activities")
         }
 
         Spacer(modifier = Modifier.height(32.dp))

@@ -13,7 +13,7 @@ import edu.cit.Skysync.service.WardrobeService;
 import edu.cit.Skysync.service.WardrobeService.WardrobeRecommendation;
 import edu.cit.Skysync.service.WeatherService;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "http://10.0.2.2:8080"})
 @RestController
 @RequestMapping("/wardrobe")
 public class WardrobeController {
