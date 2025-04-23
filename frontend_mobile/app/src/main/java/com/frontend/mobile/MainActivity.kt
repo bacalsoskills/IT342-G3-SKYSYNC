@@ -16,6 +16,10 @@ import com.frontend.mobile.ui.settings.SettingsScreen
 import com.frontend.mobile.ui.aboutus.AboutUsScreen
 import com.frontend.mobile.ui.activitypage.WeatherActivityPage
 import androidx.navigation.navArgument
+import com.example.wanderways.ui.pages.NotificationPage
+import com.example.wanderways.ui.pages.ViewAllRecommendedActivities
+import com.frontend.mobile.ui.activitypage.MyActivityPage
+import com.frontend.mobile.viewactivities.ViewAllRecommendedWardrobes
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,6 +90,43 @@ fun AppNavigator() {
             )
         }
 
+
+        // My Activities Screen
+        composable("my_activities") {
+            MyActivityPage(
+                navController = navController,
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable("my_notification") {
+            NotificationPage(
+                navController = navController,
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+
+
+composable("view_all_activities") {
+    ViewAllRecommendedActivities(
+        navController = navController,
+        onBackClick = { navController.popBackStack() }
+    )
+}
+
+        composable("view_all_wardrobe") {
+            ViewAllRecommendedWardrobes(
+                navController = navController,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+
+
         // Weather Activities Screen
         composable(
             "weather_activities/{weatherCode}",
@@ -99,3 +140,4 @@ fun AppNavigator() {
         }
     }
 }
+
