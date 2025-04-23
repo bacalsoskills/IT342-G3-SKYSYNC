@@ -21,7 +21,7 @@ import edu.cit.Skysync.service.ActivityService;
 import edu.cit.Skysync.service.UserService;
 import edu.cit.Skysync.service.WeatherService;
 
-@CrossOrigin(origins = "http://localhost:5173") 
+@CrossOrigin(origins = {"http://localhost:5173", "http://10.0.2.2:8080"})
 @RestController
 @RequestMapping("/api/activities")
 public class ActivityController {

@@ -51,4 +51,17 @@ interface ApiService {
         @Query("city") city: String,
         @Header("Authorization") token: String
     ): Call<List<ActivityDTO>>
+
+    @POST("api/activities")
+    fun saveActivity(
+        @Query("userId") userId: Long,
+        @Header("Authorization") token: String,
+        @Body activity: ActivityDTO
+    ): Call<ActivityDTO>
+
+    @GET("api/activities/user")
+    fun getUserActivities(
+        @Query("userId") userId: Long,
+        @Header("Authorization") token: String
+    ): Call<List<ActivityDTO>>
 }

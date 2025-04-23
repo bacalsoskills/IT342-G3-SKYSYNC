@@ -17,7 +17,7 @@ import com.frontend.mobile.ui.aboutus.AboutUsScreen
 import com.frontend.mobile.ui.activitypage.WeatherActivityPage
 import androidx.navigation.navArgument
 import com.example.wanderways.ui.pages.NotificationPage
-import com.example.wanderways.ui.pages.ViewAllRecommendedActivities
+import com.frontend.mobile.viewactivities.ViewAllRecommendedActivities
 import com.frontend.mobile.ui.activitypage.MyActivityPage
 import com.frontend.mobile.viewactivities.ViewAllRecommendedWardrobes
 import com.frontend.mobile.viewactivities.ViewWeeklyForecast
@@ -110,23 +110,29 @@ fun AppNavigator() {
             )
         }
 
-
-
-composable("view_all_activities") {
-    ViewAllRecommendedActivities(
-        navController = navController,
-        onBackClick = { navController.popBackStack() }
-    )
-}
-
-        composable("view_all_wardrobe") {
-            ViewAllRecommendedWardrobes(
+        composable(
+            "view_all_activities/{city}",
+            arguments = listOf(navArgument("city") { defaultValue = "Cebu" })
+        ) { backStackEntry ->
+            val city = backStackEntry.arguments?.getString("city") ?: "Cebu"
+            ViewAllRecommendedActivities(
+                city = city,
                 navController = navController,
                 onBackClick = { navController.popBackStack() }
             )
         }
 
-
+        composable(
+            "view_all_wardrobe/{city}",
+            arguments = listOf(navArgument("city") { defaultValue = "Cebu" })
+        ) { backStackEntry ->
+            val city = backStackEntry.arguments?.getString("city") ?: "Cebu"
+            ViewAllRecommendedWardrobes(
+                city = city,
+                navController = navController,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
 
         // Weather Activities Screen
         composable(
