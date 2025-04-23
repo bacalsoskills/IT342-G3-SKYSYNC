@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.wanderways.ui.pages.ViewAllRecommendedActivities
+import com.frontend.mobile.viewactivities.ViewAllRecommendedActivities
 import com.frontend.mobile.R
 import com.frontend.mobile.api.ApiClient
 import com.frontend.mobile.api.ApiService
@@ -55,8 +55,19 @@ fun HomePage(navController: NavHostController) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     // State for city input
-    var cityInput by remember { mutableStateOf("Cebu") } // Default input is "Cebu"
-    var city by remember { mutableStateOf("Cebu") } // Default city for fetching data
+    var cityInput by remember { mutableStateOf("") }
+    var city by remember { mutableStateOf("") }
+
+    // Load the last saved city from SharedPreferences
+    LaunchedEffect(Unit) {
+        city = sharedPreferences.getString("lastCity", "Cebu") ?: "Cebu"
+        cityInput = city
+    }
+
+    // Save the city to SharedPreferences when it changes
+    fun saveCityToPreferences(newCity: String) {
+        sharedPreferences.edit().putString("lastCity", newCity).apply()
+    }
 
     // State to hold wardrobe data
     var wardrobeData by remember { mutableStateOf<WardrobeRecommendation?>(null) }
@@ -302,7 +313,8 @@ fun HomePage(navController: NavHostController) {
         // Enter Button
         Button(
             onClick = {
-                city = cityInput // Update the city state to trigger the API call
+                city = cityInput // Update the city state
+                saveCityToPreferences(city) // Save the city to SharedPreferences
             },
             modifier = Modifier.align(Alignment.CenterHorizontally),
             colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF2D9CDB))
@@ -449,7 +461,7 @@ fun HomePage(navController: NavHostController) {
 
         Button(
             onClick = {
-                navController.navigate("view_all_wardrobe")
+                navController.navigate("view_all_wardrobe/$city")
             },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
@@ -503,16 +515,16 @@ fun HomePage(navController: NavHostController) {
             Text("Fetching activity recommendations...", color = Color.Gray)
         }
         Button(
-                onClick = {
-                    navController.navigate("view_all_activities")
-                },
-        modifier = Modifier
-            .align(Alignment.CenterHorizontally)
-            .fillMaxWidth()
-            .padding(horizontal = 32.dp)
+            onClick = {
+                navController.navigate("view_all_activities/$city")
+            },
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
         ) {
-        Text("View More Activities")
-    }
+            Text("View More Activities")
+        }
 
 
         Spacer(modifier = Modifier.height(32.dp))
