@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -48,10 +49,13 @@ fun AboutUsScreen(onBackClick: () -> Unit) {
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Back",
                     modifier = Modifier
+                        .padding(top = 40.dp)  // Increased top padding
+                        .padding(start = 16.dp)
                         .size(24.dp)
                         .clickable { onBackClick() }
                 )
             }
+
 
             Spacer(modifier = Modifier.height(8.dp))
 

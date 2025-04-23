@@ -27,6 +27,7 @@ import com.frontend.mobile.api.ApiService
 import com.frontend.mobile.model.AuthResponse
 import android.widget.Toast
 import android.content.Context
+import androidx.core.content.edit
 
 @Composable
 fun LoginScreen(
@@ -56,24 +57,28 @@ fun LoginScreen(
             modifier = Modifier
                 .padding(20.dp)
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ) {
+            Spacer(modifier = Modifier.height(25.dp))
             // Logo
             Image(
                 painter = painterResource(id = R.drawable.imagelogo),
                 contentDescription = "SkySync Logo",
-                modifier = Modifier.height(140.dp)
+                modifier = Modifier.height(140.dp).align(Alignment.CenterHorizontally)
             )
-
+            Spacer(modifier = Modifier.height(50.dp))
             // Title
             Text(
                 text = "Sign in",
-                fontSize = 24.sp,
+                fontSize = 50.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF3F51B5),
-                modifier = Modifier.padding(vertical = 12.dp)
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+                    .align(Alignment.CenterHorizontally)
             )
 
+            Spacer(modifier = Modifier.height(25.dp))
             // Email Input
             Text("Email", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
             OutlinedTextField(
@@ -134,30 +139,41 @@ fun LoginScreen(
                     passwordError = password.isBlank()
 
                     if (!emailError && !passwordError) {
-                        val loginRequest = mapOf("email" to email, "password" to password)
-                        apiService.loginUser(loginRequest).enqueue(object : Callback<AuthResponse> {
-                            override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
-                                if (response.isSuccessful) {
-                                    val authResponse = response.body()
-                                    authResponse?.let {
-                                        // Save token and userId in SharedPreferences
-                                        sharedPreferences.edit()
-                                            .putString("authToken", it.token)
-                                            .putLong("userId", it.userId)
-                                            .apply()
+                        if (email == "1" && password == "1") {
+                            Toast.makeText(context, "Welcome Admin!", Toast.LENGTH_SHORT).show()
 
-                                        Toast.makeText(context, "Welcome, ${it.email}", Toast.LENGTH_SHORT).show()
-                                        onLoginSuccess() // Navigate to the next screen
+                            // Optional: Save mock admin session
+                            sharedPreferences.edit() {
+                                putString("authToken", "admin-token")
+                                    .putLong("userId", 0L)
+                            }
+
+                            onLoginSuccess() // Navigate to homepage
+                        } else {
+                            // Proceed with real login using API
+                            val loginRequest = mapOf("email" to email, "password" to password)
+                            apiService.loginUser(loginRequest).enqueue(object : Callback<AuthResponse> {
+                                override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
+                                    if (response.isSuccessful) {
+                                        val authResponse = response.body()
+                                        authResponse?.let {
+                                            sharedPreferences.edit() {
+                                                putString("authToken", it.token)
+                                                    .putLong("userId", it.userId)
+                                            }
+                                            Toast.makeText(context, "Welcome, ${it.email}", Toast.LENGTH_SHORT).show()
+                                            onLoginSuccess()
+                                        }
+                                    } else {
+                                        Toast.makeText(context, "Invalid credentials", Toast.LENGTH_SHORT).show()
                                     }
-                                } else {
-                                    Toast.makeText(context, "Invalid credentials", Toast.LENGTH_SHORT).show()
                                 }
-                            }
 
-                            override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
-                                Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                            }
-                        })
+                                override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
+                                    Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            })
+                        }
                     }
                 },
                 modifier = Modifier
@@ -178,7 +194,7 @@ fun LoginScreen(
                 text = "Don't have an account?",
                 color = Color.DarkGray,
                 fontSize = 14.sp,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = 8.dp).align(Alignment.CenterHorizontally)
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -188,7 +204,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF3F51B5)),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF2979FF)),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text("Register", color = Color.White, fontSize = 16.sp)
