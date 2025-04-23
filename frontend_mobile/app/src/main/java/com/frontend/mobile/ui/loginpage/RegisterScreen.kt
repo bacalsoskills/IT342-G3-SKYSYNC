@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -80,14 +81,18 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
             .fillMaxSize()
             .background(brush = backgroundBrush),
         contentAlignment = Alignment.TopCenter
-    ) {
+
+    )
+
+    {
         Column(
             modifier = Modifier
-                .padding(top = 60.dp, start = 24.dp, end = 24.dp)
+                .padding(top = 60.dp, start = 35.dp, end = 35.dp)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(50.dp))
             // Logo
             Image(
                 painter = painterResource(id = R.drawable.imagelogo),
@@ -95,7 +100,7 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                 modifier = Modifier.height(140.dp)
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+
 
             // Register title
             Text(
@@ -108,47 +113,68 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
 
             // Input Fields
             Column(modifier = Modifier.fillMaxWidth()) {
+
+                Spacer(modifier = Modifier.height(8.dp))
                 // First Name
+                Text("First Name", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
                 OutlinedTextField(
                     value = firstName,
-                    onValueChange = { firstName = capitalizeName(it) },
-                    label = { Text("First Name") },
+                    onValueChange = {
+                        firstName = capitalizeName(it)
+                        firstNameError = false
+                    },
+                    singleLine = true,
                     isError = firstNameError,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp) // Match the vertical padding as in the email field
+                        .background(Color.White, RoundedCornerShape(10.dp)),
                 )
                 if (firstNameError) {
                     Text("First Name must not be empty", color = Color.Red, fontSize = 12.sp)
                 }
 
                 // Last Name
+// Last Name
+                Text("Last Name", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
                 OutlinedTextField(
                     value = lastName,
                     onValueChange = { lastName = capitalizeName(it) },
-                    label = { Text("Last Name") },
+                    singleLine = true,
                     isError = lastNameError,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .background(Color.White, RoundedCornerShape(10.dp)),
                 )
                 if (lastNameError) {
                     Text("Last Name must not be empty", color = Color.Red, fontSize = 12.sp)
                 }
 
-                // Email
+
+// Email
+                Text("Email", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text("Email") },
+                    singleLine = true,
                     isError = emailError,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .background(Color.White, RoundedCornerShape(10.dp)),
                 )
                 if (emailError) {
                     Text("Please enter a valid email", color = Color.Red, fontSize = 12.sp)
                 }
 
-                // Password
+
+// Password
+                Text("Password", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Password") },
+                    singleLine = true,
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -159,17 +185,26 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                         }
                     },
                     isError = passwordError,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .background(Color.White, RoundedCornerShape(10.dp)),
                 )
                 if (passwordError) {
-                    Text("Password must be at least 8 characters long and contain uppercase, lowercase, and a number", color = Color.Red, fontSize = 12.sp)
+                    Text(
+                        "Password must be at least 8 characters long and contain uppercase, lowercase, and a number",
+                        color = Color.Red,
+                        fontSize = 12.sp
+                    )
                 }
 
-                // Confirm Password
+
+// Confirm Password
+                Text("Confirm Password", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    label = { Text("Confirm Password") },
+                    singleLine = true,
                     visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
@@ -180,7 +215,10 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                         }
                     },
                     isError = confirmPasswordError,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .background(Color.White, RoundedCornerShape(10.dp)),
                 )
                 if (confirmPasswordError) {
                     Text("Passwords do not match", color = Color.Red, fontSize = 12.sp)
@@ -226,16 +264,24 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF2979FF)),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text("Register")
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
 
             // Back to Login Button
             TextButton(onClick = { onBackToLogin() }) {
-                Text("Back to Login")
+                Text("Back to Login", color = Color.Black, fontSize = 16.sp)
+                Spacer(modifier = Modifier.height(100.dp))
             }
+
         }
+
     }
+
 }
+
+
