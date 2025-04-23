@@ -398,29 +398,36 @@ fun HomePage(navController: NavHostController) {
             IconCard(R.drawable.coat)
         }
         if (wardrobeData != null) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                shape = RoundedCornerShape(12.dp),
-                elevation = 4.dp
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = wardrobeData!!.theme,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Clothing Items:", fontWeight = FontWeight.Bold, color = Color.Black)
-                    wardrobeData!!.clothingItems.forEach { item ->
-                        Text("- $item", color = Color.Black)
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Descriptions:", fontWeight = FontWeight.Bold, color = Color.Black)
-                    wardrobeData!!.clothingDescriptions.forEach { description ->
-                        Text("- $description", color = Color.Black)
+            // Display the theme at the top
+            Text(
+                text = wardrobeData!!.theme,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+            // Create a separate card for each clothing item and description
+            wardrobeData!!.clothingItems.zip(wardrobeData!!.clothingDescriptions).forEach { (item, description) ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = 4.dp
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = item,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = description,
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
                     }
                 }
             }
