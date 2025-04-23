@@ -12,10 +12,25 @@ export const getUserNotifications = async (userId) => {
       },
     });
 
-    // Sort notifications by creation time in descending order
-    return response.data.sort((a, b) => new Date(b.triggerTime) - new Date(a.triggerTime));
+    // Sort notifications by id (descending order)
+    const sortedData = response.data.sort((a, b) => b.id - a.id);
+    console.log("Sorted Notifications (Descending by ID):", sortedData); // Debugging: Check the sorted data
+    return sortedData;
   } catch (error) {
     console.error("Error fetching user notifications:", error);
     throw error;
+  }
+};
+
+const fetchNotifications = async () => {
+  setLoading(true);
+  try {
+    const data = await getUserNotifications(userId);
+    console.log("Notifications to Render:", data); // Debugging: Check the data passed to setNotifications
+    setNotifications(data);
+  } catch (error) {
+    console.error("Failed to fetch notifications:", error);
+  } finally {
+    setLoading(false);
   }
 };
