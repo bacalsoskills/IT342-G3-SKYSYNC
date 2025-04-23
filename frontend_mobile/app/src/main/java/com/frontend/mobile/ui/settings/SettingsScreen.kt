@@ -34,7 +34,6 @@ fun SettingsScreen(
     navController: NavHostController,
     onBack: () -> Unit
 ) {
-    var pushNotificationsEnabled by remember { mutableStateOf(true) }
     var user by remember { mutableStateOf<User?>(null) }
     val apiService = ApiClient.getClient().create(ApiService::class.java)
     val context = LocalContext.current
@@ -151,11 +150,7 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Push notifications", fontSize = 16.sp)
-                Switch(
-                    checked = pushNotificationsEnabled,
-                    onCheckedChange = { pushNotificationsEnabled = it }
-                )
+
             }
 
             Divider(modifier = Modifier.padding(vertical = 8.dp))

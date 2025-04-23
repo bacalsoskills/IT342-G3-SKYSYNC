@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Button
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.wanderways.ui.pages.ViewAllRecommendedActivities
 import com.frontend.mobile.R
 import com.frontend.mobile.api.ApiClient
 import com.frontend.mobile.api.ApiService
@@ -33,6 +35,7 @@ import retrofit2.Response
 import com.frontend.mobile.model.DailyWeatherDTO
 import com.frontend.mobile.model.WardrobeRecommendation
 import com.frontend.mobile.model.ActivityDTO
+
 
 @Composable
 fun HomePage(navController: NavHostController) {
@@ -94,7 +97,7 @@ fun HomePage(navController: NavHostController) {
         }
     }
 
-    // Fetch wardrobe data
+    // Fetch wardrobe data/////////////////////////////////////////////////////////////////////////////////////////////////////////
     LaunchedEffect(city) {
         if (city.isNotEmpty()) {
             val token = sharedPreferences.getString("authToken", null)
@@ -180,69 +183,102 @@ fun HomePage(navController: NavHostController) {
                 color = Color.White
             )
 
-            Box {
-                IconButton(onClick = { expanded = true }) {
-                    Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.White)
-                }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Notification Dropdown
+                var notificationExpanded by remember { mutableStateOf(false) }
 
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    DropdownMenuItem(onClick = {
-                        expanded = false
-                        navController.navigate("user_profile")
-                    }) {
-                        Text("User Profile")
+                Box {
+                    IconButton(onClick = { notificationExpanded = true }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.notification), // Replace with your notification icon
+                            contentDescription = "Notifications",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
-                    DropdownMenuItem(onClick = {
-                        expanded = false
-                        navController.navigate("settings")
-                    }) {
-                        Text("Settings")
-                    }
-                    DropdownMenuItem(onClick = {
-                        expanded = false
-                        navController.navigate("about_us")
-                    }) {
-                        Text("About Us")
-                    }
-                    DropdownMenuItem(onClick = {
-                        expanded = false
-                        // Logout Functionality
-                        val token = sharedPreferences.getString("authToken", null)
-                        if (token != null) {
-                            apiService.logoutUser("Bearer $token").enqueue(object : Callback<ResponseBody> {
-                                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                                    if (response.isSuccessful) {
-                                        // Clear SharedPreferences
-                                        sharedPreferences.edit().clear().apply()
-                                        // Navigate to Login Page
-                                        navController.navigate("login") {
-                                            popUpTo("home") { inclusive = true }
-                                        }
-                                        Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        Toast.makeText(context, "Failed to log out", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
 
-                                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                                    Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                                }
-                            })
-                        } else {
-                            Toast.makeText(context, "No token found. Please log in again.", Toast.LENGTH_SHORT).show()
-                            navController.navigate("login") {
-                                popUpTo("home") { inclusive = true }
-                            }
+                    DropdownMenu(
+                        expanded = notificationExpanded,
+                        onDismissRequest = { notificationExpanded = false }
+                    ) {
+                        DropdownMenuItem(onClick = {
+                            notificationExpanded = false
+                            navController.navigate("my_notification")
+                        }) {
+                            Text("View my notifications")
                         }
-                    }) {
-                        Text("Logout")
                     }
                 }
+
+                // Existing menu
+                Box {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.White)
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(onClick = {
+                            expanded = false
+                            navController.navigate("user_profile")
+                        }) {
+                            Text("User Profile")
+                        }
+
+                        DropdownMenuItem(onClick = {
+                            expanded = false
+                            navController.navigate("settings")
+                        }) {
+                            Text("Settings")
+                        }
+
+                        DropdownMenuItem(onClick = {
+                            expanded = false
+                            navController.navigate("about_us")
+                        }) {
+                            Text("About Us")
+                        }
+
+                        DropdownMenuItem(onClick = {
+                            expanded = false
+                            navController.navigate("my_activities")
+                        }) {
+                            Text("My Activities")
+                        }
+
+                        DropdownMenuItem(onClick = {
+                            expanded = false
+                            val token = sharedPreferences.getString("authToken", null)
+                            if (token != null) {
+                                apiService.logoutUser("Bearer $token").enqueue(object : Callback<ResponseBody> {
+                                    override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                                        if (response.isSuccessful) {
+                                            sharedPreferences.edit().clear().apply()
+                                            navController.navigate("login") {
+                                                popUpTo("home") { inclusive = true }
+                                            }
+                                            Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(context, "Failed to log out", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+
+                                    override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                                        Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                                })
+                            }
+                        }) {
+                            Text("Logout")
+                        }
+                    }
+                }
+
             }
         }
+
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -350,7 +386,7 @@ fun HomePage(navController: NavHostController) {
         Spacer(modifier = Modifier.height(20.dp))
 
 
-        // Wardrobe Section
+        // Wardrobe Section//////////////////////////////////////////////////////////////////////////////////
         Text("Wardrobe", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
         Row(
@@ -392,18 +428,34 @@ fun HomePage(navController: NavHostController) {
             Text("Fetching wardrobe recommendation...", color = Color.Gray)
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-        ViewMoreButton {
 
+        Button(
+            onClick = {
+                navController.navigate("view_all_wardrobe")
+            },
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
+        ) {
+            Text("View More Wardrobes")
         }
 
 
         Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        // Activities Section
+        // Activities Section//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         Text("Activities", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
-
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            IconCard(R.drawable.cycling)
+            IconCard(R.drawable.coat)
+            IconCard(R.drawable.fishing)
+        }
         if (activityData.isNotEmpty()) {
             activityData.forEach { activity ->
                 Card(
@@ -432,16 +484,24 @@ fun HomePage(navController: NavHostController) {
         } else {
             Text("Fetching activity recommendations...", color = Color.Gray)
         }
+        Button(
+                onClick = {
+                    navController.navigate("view_all_activities")
+                },
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp)
+        ) {
+        Text("View More Activities")
+    }
 
-        Spacer(modifier = Modifier.height(8.dp))
-        ViewMoreButton {
-            // Navigate to a detailed activity page if needed
-            navController.navigate("activities")
-        }
 
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
+
+
 
 @Composable
 fun IconCard(iconResId: Int) {
@@ -457,20 +517,6 @@ fun IconCard(iconResId: Int) {
             modifier = Modifier.fillMaxSize()
         )
     }
+    Spacer(modifier = Modifier.height(32.dp))
 }
 
-@Composable
-fun ViewMoreButton(onClick: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center
-    ) {
-        Button(
-            onClick = onClick,
-            shape = RoundedCornerShape(20.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF2D9CDB))
-        ) {
-            Text("View More", color = Color.White)
-        }
-    }
-}
