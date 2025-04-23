@@ -6,6 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +33,7 @@ import retrofit2.Response
 fun UserProfileScreen(navController: NavController) {
     var user by remember { mutableStateOf<User?>(null) }
     var newPassword by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") } // Add confirmation field
+    var confirmPassword by remember { mutableStateOf("") }
     val apiService = ApiClient.getClient().create(ApiService::class.java)
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
@@ -64,6 +67,18 @@ fun UserProfileScreen(navController: NavController) {
             .fillMaxSize()
             .background(gradientBackground),
     ) {
+        // Back Arrow
+        IconButton(
+            onClick = { navController.popBackStack() },  // Corrected: Navigates back on click
+            modifier = Modifier
+                .padding(top = 40.dp)  // Increased top padding
+                .padding(start = 16.dp)
+                .align(Alignment.TopStart)
+        ) {
+            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+        }
+
+        // User Profile Content
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
