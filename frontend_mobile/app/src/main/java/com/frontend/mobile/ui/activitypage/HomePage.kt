@@ -385,6 +385,17 @@ fun HomePage(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        Button(
+            onClick = {
+                navController.navigate("view_weekly_forecast/$city")
+            },
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
+        ) {
+            Text("View Weekly Forecast")
+        }
 
         // Wardrobe Section//////////////////////////////////////////////////////////////////////////////////
         Text("Wardrobe", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold)
