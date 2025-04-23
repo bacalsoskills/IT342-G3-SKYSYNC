@@ -20,6 +20,7 @@ import com.example.wanderways.ui.pages.NotificationPage
 import com.example.wanderways.ui.pages.ViewAllRecommendedActivities
 import com.frontend.mobile.ui.activitypage.MyActivityPage
 import com.frontend.mobile.viewactivities.ViewAllRecommendedWardrobes
+import com.frontend.mobile.viewactivities.ViewWeeklyForecast
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,6 +138,15 @@ composable("view_all_activities") {
                 weatherCode = weatherCode,
                 onBackClick = { navController.popBackStack() }
             )
+        }
+
+        // View Weekly Forecast Screen
+        composable(
+            "view_weekly_forecast/{city}",
+            arguments = listOf(navArgument("city") { defaultValue = "Cebu" })
+        ) { backStackEntry ->
+            val city = backStackEntry.arguments?.getString("city") ?: "Cebu"
+            ViewWeeklyForecast(city = city, navController = navController)
         }
     }
 }

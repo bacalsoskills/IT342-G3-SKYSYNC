@@ -35,6 +35,11 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Call<DailyWeatherDTO>
 
+    @GET("weather/weeklyByCity")
+    fun getWeeklyWeatherByCity(
+        @Query("city") city: String
+    ): Call<List<DailyWeatherDTO>>
+
     @GET("wardrobe/todayByCity")
     fun getTodayWardrobeByCity(
         @Query("city") city: String,
