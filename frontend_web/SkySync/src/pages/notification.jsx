@@ -21,7 +21,6 @@ const NotificationPage = () => {
     setLoading(true);
     try {
       const data = await getUserNotifications(userId);
-      console.log("Notifications to Render (Sorted by ID):", data); // Debugging
       setNotifications(data);
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
@@ -55,7 +54,40 @@ const NotificationPage = () => {
                 Back to Dashboard
               </Button>
             </div>
-
+            <h2 className="mb-3">All Notifications</h2>
+            {loading ? (
+              <div className="text-center py-5">
+                <Spin size="large" />
+              </div>
+            ) : notifications.length > 0 ? (
+              <List
+                bordered
+                dataSource={notifications}
+                renderItem={(notification) => (
+                  <List.Item
+                    actions={[
+                      <Button
+                        key="delete"
+                        type="text"
+                        danger
+                        onClick={() => handleDeleteNotification(notification.id)}
+                      >
+                        X
+                      </Button>,
+                    ]}
+                  >
+                    <div>
+                      <strong style={{ textDecoration: notification.isRead ? "line-through" : "none" }}>
+                        {notification.message}
+                      </strong>
+                    </div>
+                  </List.Item>
+                )}
+              />
+            ) : (
+              <p>No notifications available.</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

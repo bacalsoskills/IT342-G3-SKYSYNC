@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Card, Spin, Alert, List, Tag, Button, message } from "antd"; // Import Button and message
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { Card, Spin, Alert, List, Tag, Button } from "antd";
+import { Carousel } from "antd";
+import { useNavigate } from "react-router-dom";
 import { getWardrobeRecommendationByCity } from "../services/wardrobeService";
+import themeImages from "../services/themeImages"; // Correct path to the services folder
+import "../styles/Carousel.css"; // Import the Carousel CSS file
 
 const RecommendedWardrobe = () => {
-  const [city, setCity] = useState(() => {
-    return localStorage.getItem("lastCity") || "Cebu";
-  });
+  const [city, setCity] = useState(() => localStorage.getItem("lastCity") || "Cebu");
   const [wardrobeData, setWardrobeData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchWardrobeData = async () => {
@@ -31,16 +32,8 @@ const RecommendedWardrobe = () => {
     fetchWardrobeData();
   }, [city]);
 
-  const handleAddActivity = async (activity) => {
-    try {
-      const savedActivity = await saveActivityForUser(userId, activity); // Save the activity and get the saved activity
-      message.success("Activity added successfully!");
-      // Navigate to the schedule activity page with the saved activity details
-      navigate("/scheduleactivity", { state: { activity: savedActivity } });
-    } catch (err) {
-      console.error("Error adding activity:", err);
-      message.error("Failed to add activity. Please try again.");
-    }
+  const getImagesForTheme = (theme) => {
+    return themeImages[theme] || []; // Retrieve images for the theme or return an empty array
   };
 
   return (
@@ -49,48 +42,62 @@ const RecommendedWardrobe = () => {
         Back to Dashboard
       </Button>
       <h2>All Recommended Wardrobes for {city}</h2>
-      <Card
-        style={{
-          padding: "20px",
-          borderRadius: "8px",
-        }}
-      >
+      <Card style={{ padding: "20px", borderRadius: "8px" }}>
         {loading ? (
           <div style={{ textAlign: "center", padding: "20px" }}>
             <Spin size="large" />
           </div>
         ) : error ? (
-          <Alert
-            message={error}
-            type="error"
-            showIcon
-            style={{ marginBottom: "16px" }}
-          />
+          <Alert message={error} type="error" showIcon style={{ marginBottom: "16px" }} />
         ) : wardrobeData && wardrobeData.length > 0 ? (
           wardrobeData.map((recommendation, index) => (
-            <div key={index} style={{ marginBottom: "20px" }}>
-              <Tag color="blue" style={{ fontSize: "16px", padding: "8px", marginBottom: "12px" }}>
-                {recommendation.theme}
-              </Tag>
-              <List
-                header={<strong>Recommended Items:</strong>}
-                bordered
-                dataSource={recommendation.clothingItems.map((item, idx) => ({
-                  item,
-                  description: recommendation.clothingDescriptions[idx],
-                }))}
-                renderItem={({ item, description }) => (
-                  <List.Item>
-                    <div>
-                      <span style={{ marginRight: "8px" }}>•</span>
-                      <strong>{item}</strong>
-                      <div style={{ color: "#666", marginTop: "4px" }}>
-                        {description}
+            <div key={index} style={{ marginBottom: "20px", display: "flex", alignItems: "center" }}>
+              <div style={{ flex: 1 }}>
+                <Tag color="blue" style={{ fontSize: "16px", padding: "8px", marginBottom: "12px" }}>
+                  {recommendation.theme}
+                </Tag>
+                <List
+                  header={<strong>Recommended Items:</strong>}
+                  bordered
+                  dataSource={recommendation.clothingItems.map((item, idx) => ({
+                    item,
+                    description: recommendation.clothingDescriptions[idx],
+                  }))}
+                  renderItem={({ item, description }) => (
+                    <List.Item>
+                      <div>
+                        <span style={{ marginRight: "8px" }}>•</span>
+                        <strong>{item}</strong>
+                        <div style={{ color: "#666", marginTop: "4px" }}>{description}</div>
                       </div>
-                    </div>
-                  </List.Item>
-                )}
-              />
+                    </List.Item>
+                  )}
+                />
+              </div>
+              <div style={{ flex: 1, marginLeft: "20px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <div style={{ width: "300px", height: "350px", overflow: "hidden" }}>
+                  <Carousel
+                    autoplay
+                    autoplaySpeed={2000}
+                    arrows
+                  >
+                    {getImagesForTheme(recommendation.theme).map((image, idx) => (
+                      <div key={idx}>
+                        <img
+                          src={image}
+                          alt={`${recommendation.theme} ${idx + 1}`}
+                          style={{
+                            width: "100%", // Make the image fill the container width
+                            height: "100%", // Make the image fill the container height
+                            objectFit: "cover", // Ensure the image fits within the dimensions
+                            borderRadius: "8px", // Optional: Add rounded corners
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </Carousel>
+                </div>
+              </div>
             </div>
           ))
         ) : (

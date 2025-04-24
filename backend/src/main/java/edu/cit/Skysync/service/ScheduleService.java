@@ -78,6 +78,9 @@ public class ScheduleService {
         // Create a Quartz job for the notification
         createNotificationJob(savedSchedule);
 
+        // Create a Quartz job to delete the schedule
+        createDeleteScheduleJob(savedSchedule);
+
         return savedSchedule;
     }
 
@@ -199,5 +202,27 @@ public class ScheduleService {
     public ScheduleEntity getScheduleByActivityId(Long activityId) {
         return scheduleRepository.findByActivity_ActivityId(activityId)
             .orElseThrow(() -> new RuntimeException("Schedule not found for the given activity ID"));
+    }
+
+    private void createDeleteScheduleJob(ScheduleEntity schedule) {
+        try {
+            // Create a JobDetail for deleting the schedule
+            JobDetail jobDetail = JobBuilder.newJob(DeleteScheduleJob.class)
+                .withIdentity("DeleteScheduleJob_" + schedule.getScheduleId(), "Schedules")
+                .usingJobData("scheduleId", schedule.getScheduleId())
+                .build();
+    
+            // Create a Trigger for the job
+            Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity("DeleteScheduleTrigger_" + schedule.getScheduleId(), "Schedules")
+                .startAt(java.sql.Timestamp.valueOf(schedule.getEndTime())) // Use the schedule's end time
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule())
+                .build();
+    
+            // Schedule the job
+            scheduler.scheduleJob(jobDetail, trigger);
+        } catch (SchedulerException e) {
+            throw new RuntimeException("Failed to schedule delete schedule job", e);
+        }
     }
 }

@@ -80,4 +80,30 @@ interface ApiService {
         @Path("userId") userId: Long,
         @Header("Authorization") token: String
     ): Call<List<NotificationDTO>>
+
+    @GET("api/schedules/activity/{activityId}")
+    suspend fun getScheduleByActivityId(
+        @Path("activityId") activityId: Long,
+        @Header("Authorization") token: String
+    ): ScheduleResponseDTO
+
+    @PUT("api/schedules/{scheduleId}")
+    suspend fun editSchedule(
+        @Path("scheduleId") scheduleId: Long,
+        @Header("Authorization") token: String, // Add Authorization header
+        @Body scheduleRequest: ScheduleRequestDTO
+    )
+
+    @GET("api/notifications/user/{userId}/unread")
+    fun getUnreadNotifications(
+        @Path("userId") userId: Long,
+        @Header("Authorization") token: String
+    ): Call<List<NotificationDTO>>
+
+    // Mark a specific notification as read
+    @PATCH("api/notifications/{notificationId}/mark-as-read")
+    fun markNotificationAsRead(
+        @Path("notificationId") notificationId: Long,
+        @Header("Authorization") token: String
+    ): Call<String>
 }

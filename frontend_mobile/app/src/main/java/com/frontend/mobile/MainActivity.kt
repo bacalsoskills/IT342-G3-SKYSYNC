@@ -18,6 +18,7 @@ import com.frontend.mobile.ui.aboutus.AboutUsScreen
 import com.frontend.mobile.ui.activitypage.WeatherActivityPage
 import androidx.navigation.navArgument
 import com.example.wanderways.ui.pages.NotificationPage
+import com.frontend.mobile.ui.activitypage.ActivityDetails
 import com.frontend.mobile.viewactivities.ViewAllRecommendedActivities
 import com.frontend.mobile.ui.activitypage.MyActivityPage
 import com.frontend.mobile.viewactivities.ViewAllRecommendedWardrobes
@@ -176,6 +177,17 @@ fun AppNavigator() {
                 navController = navController
             )
         }
+
+         // Activity Details Screen
+        composable(
+            "activity_details/{activityId}",
+            arguments = listOf(navArgument("activityId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val activityId = backStackEntry.arguments?.getLong("activityId") ?: -1L
+            ActivityDetails(navController = navController, activityId = activityId)
+        }
+    
+
     }
 }
 
