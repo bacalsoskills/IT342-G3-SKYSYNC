@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Card, Form, Button, DatePicker, TimePicker, message, Spin, Row, Col } from "antd";
+import { Card, Form, Button, TimePicker, Input, message, Spin, Row, Col } from "antd";
 import { getActivitySchedule, updateSchedule } from "../services/scheduleService";
 import moment from "moment";
 
@@ -35,22 +35,12 @@ const ActivityDetails = () => {
 
   const onFinish = async (values) => {
     try {
-      const { startDate, startTime, endDate, endTime } = values;
+      const { startTime, endTime } = values;
 
-      // Combine date and time into a single datetime string
-      const formattedStartTime = moment(startDate)
-        .set({
-          hour: startTime.hour(),
-          minute: startTime.minute(),
-        })
-        .format("YYYY-MM-DDTHH:mm");
-
-      const formattedEndTime = moment(endDate)
-        .set({
-          hour: endTime.hour(),
-          minute: endTime.minute(),
-        })
-        .format("YYYY-MM-DDTHH:mm");
+      // Automatically set today's date and combine it with the selected times
+      const today = moment().format("YYYY-MM-DD");
+      const formattedStartTime = `${today}T${startTime.format("HH:mm")}`;
+      const formattedEndTime = `${today}T${endTime.format("HH:mm")}`;
 
       // Call the updateSchedule function
       await updateSchedule(schedule.scheduleId, formattedStartTime, formattedEndTime);
@@ -89,28 +79,20 @@ const ActivityDetails = () => {
               </Button>
             </Card>
           ) : (
-            // Editable form for updating schedule
+            // Reuse the form structure from ScheduleActivity
             <Form
               layout="vertical"
               onFinish={onFinish}
               initialValues={{
-                startDate: moment(schedule.startTime), // Set the initial date for start time
-                startTime: moment(schedule.startTime), // Set the initial time for start time
-                endDate: moment(schedule.endTime), // Set the initial date for end time
-                endTime: moment(schedule.endTime), // Set the initial time for end time
+                startTime: moment(schedule.startTime),
+                endTime: moment(schedule.endTime),
               }}
             >
+              <Form.Item label="Activity Name">
+                <Input value={activity.name} disabled />
+              </Form.Item>
               <Row gutter={8}>
-                <Col span={10}>
-                  <Form.Item
-                    label="Start Date"
-                    name="startDate"
-                    rules={[{ required: true, message: "Please select a start date!" }]}
-                  >
-                    <DatePicker format="YYYY-MM-DD" />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
+                <Col span={12}>
                   <Form.Item
                     label="Start Time"
                     name="startTime"
@@ -118,24 +100,12 @@ const ActivityDetails = () => {
                   >
                     <TimePicker
                       format="HH:mm"
-                      hideDisabledOptions // Hides disabled options for cleaner UI
-                      renderExtraFooter={() => null} // Ensures the footer is completely removed
-                      onSelect={(value) => console.log("Selected Time:", value)} // Optional: Debugging
+                      hideDisabledOptions
+                      renderExtraFooter={() => null}
                     />
                   </Form.Item>
                 </Col>
-              </Row>
-              <Row gutter={8}>
-                <Col span={10}>
-                  <Form.Item
-                    label="End Date"
-                    name="endDate"
-                    rules={[{ required: true, message: "Please select an end date!" }]}
-                  >
-                    <DatePicker format="YYYY-MM-DD" />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
+                <Col span={12}>
                   <Form.Item
                     label="End Time"
                     name="endTime"
@@ -143,9 +113,8 @@ const ActivityDetails = () => {
                   >
                     <TimePicker
                       format="HH:mm"
-                      hideDisabledOptions // Hides disabled options for cleaner UI
-                      renderExtraFooter={() => null} // Ensures the footer is completely removed
-                      onSelect={(value) => console.log("Selected Time:", value)} // Optional: Debugging
+                      hideDisabledOptions
+                      renderExtraFooter={() => null}
                     />
                   </Form.Item>
                 </Col>
