@@ -18,7 +18,7 @@ import edu.cit.Skysync.dto.ScheduleRequestDTO;
 import edu.cit.Skysync.entity.ScheduleEntity;
 import edu.cit.Skysync.service.ScheduleService;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "http://10.0.2.2:8080"})
 @RestController
 @RequestMapping("/api/schedules")
 public class ScheduleController {

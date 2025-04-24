@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Button
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,6 +36,7 @@ import retrofit2.Response
 import com.frontend.mobile.model.DailyWeatherDTO
 import com.frontend.mobile.model.WardrobeRecommendation
 import com.frontend.mobile.model.ActivityDTO
+import com.frontend.mobile.model.NotificationDTO
 
 
 @Composable
@@ -74,6 +76,11 @@ fun HomePage(navController: NavHostController) {
 
     // State to hold activity data
     var activityData by remember { mutableStateOf<List<ActivityDTO>>(emptyList()) }
+
+    // State to hold notifications
+    var notifications by remember { mutableStateOf<List<String>>(emptyList()) }
+    var isDropdownVisible by remember { mutableStateOf(false) }
+    var isLoadingNotifications by remember { mutableStateOf(false) }
 
     // Fetch weather data
     LaunchedEffect(city) {
@@ -163,6 +170,43 @@ fun HomePage(navController: NavHostController) {
         }
     }
 
+    // Fetch notifications
+    fun fetchNotifications() {
+        Log.d("Notifications", "fetchNotifications called") // Debugging
+
+        val userId = sharedPreferences.getLong("userId", -1L)
+        val token = sharedPreferences.getString("authToken", null)
+        if (userId != -1L && token != null) {
+            isLoadingNotifications = true // Start loading
+            apiService.getUserNotifications(userId, "Bearer $token").enqueue(object : Callback<List<NotificationDTO>> {
+                override fun onResponse(
+                    call: Call<List<NotificationDTO>>,
+                    response: Response<List<NotificationDTO>>
+                ) {
+                    isLoadingNotifications = false // Stop loading
+                    if (response.isSuccessful) {
+                        // Sort notifications by ID in descending order and take the top 5
+                        notifications = response.body()
+                            ?.sortedByDescending { it.id }
+                            ?.take(5) // Get the 5 most recent notifications
+                            ?.map { it.message } ?: emptyList()
+
+                        Log.d("Notifications", "Fetched Notifications: $notifications") // Debugging
+                    } else {
+                        Toast.makeText(context, "Failed to fetch notifications", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<List<NotificationDTO>>, t: Throwable) {
+                    isLoadingNotifications = false // Stop loading
+                    Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+        } else {
+            Log.e("Notifications", "User ID or token is missing") // Debugging
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -199,7 +243,10 @@ fun HomePage(navController: NavHostController) {
                 var notificationExpanded by remember { mutableStateOf(false) }
 
                 Box {
-                    IconButton(onClick = { notificationExpanded = true }) {
+                    IconButton(onClick = {
+                        fetchNotifications() // Fetch notifications when the dropdown is opened
+                        notificationExpanded = true
+                    }) {
                         Icon(
                             painter = painterResource(id = R.drawable.notification), // Replace with your notification icon
                             contentDescription = "Notifications",
@@ -212,11 +259,37 @@ fun HomePage(navController: NavHostController) {
                         expanded = notificationExpanded,
                         onDismissRequest = { notificationExpanded = false }
                     ) {
+                        // Display notifications
+                        if (notifications.isNotEmpty()) {
+                            notifications.forEach { message ->
+                                DropdownMenuItem(onClick = {}) {
+                                    Text(
+                                        text = message,
+                                        style = MaterialTheme.typography.body1,
+                                        modifier = Modifier.padding(4.dp)
+                                    )
+                                }
+                            }
+                        } else {
+                            DropdownMenuItem(onClick = {}) {
+                                Text(
+                                    text = "No notifications available",
+                                    style = MaterialTheme.typography.body1,
+                                    modifier = Modifier.padding(4.dp)
+                                )
+                            }
+                        }
+
+                        // "View My Notifications" Button at the Bottom
                         DropdownMenuItem(onClick = {
                             notificationExpanded = false
                             navController.navigate("my_notification")
                         }) {
-                            Text("View my notifications")
+                            Text(
+                                text = "View My Notifications",
+                                style = MaterialTheme.typography.body1,
+                                color = MaterialTheme.colors.primary
+                            )
                         }
                     }
                 }
@@ -528,6 +601,7 @@ fun HomePage(navController: NavHostController) {
 
 
         Spacer(modifier = Modifier.height(32.dp))
+
     }
 }
 
