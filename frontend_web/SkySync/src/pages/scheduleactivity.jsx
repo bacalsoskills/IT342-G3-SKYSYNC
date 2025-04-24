@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Form, Input, Button, DatePicker, TimePicker, message, Row, Col } from "antd";
+import { Form, TimePicker, Button, message, Row, Col, Input } from "antd"; // Add Input here
 import { scheduleActivity } from "../services/scheduleService";
 import moment from "moment"; // Ensure moment is installed
 
@@ -15,22 +15,12 @@ const ScheduleActivity = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const { startDate, startTime, endDate, endTime } = values;
+      const { startTime, endTime } = values;
 
-      // Combine date and time into a single datetime string
-      const formattedStartTime = moment(startDate)
-        .set({
-          hour: startTime.hour(),
-          minute: startTime.minute(),
-        })
-        .format("YYYY-MM-DDTHH:mm");
-
-      const formattedEndTime = moment(endDate)
-        .set({
-          hour: endTime.hour(),
-          minute: endTime.minute(),
-        })
-        .format("YYYY-MM-DDTHH:mm");
+      // Automatically set today's date and combine it with the selected times
+      const today = moment().format("YYYY-MM-DD");
+      const formattedStartTime = `${today}T${startTime.format("HH:mm")}`;
+      const formattedEndTime = `${today}T${endTime.format("HH:mm")}`;
 
       console.log("Formatted Start Time:", formattedStartTime);
       console.log("Formatted End Time:", formattedEndTime);
@@ -57,9 +47,7 @@ const ScheduleActivity = () => {
           layout="vertical"
           onFinish={onFinish}
           initialValues={{
-            startDate: null,
             startTime: null,
-            endDate: null,
             endTime: null,
           }}
         >
@@ -67,16 +55,7 @@ const ScheduleActivity = () => {
             <Input value={activity.name} disabled />
           </Form.Item>
           <Row gutter={8}>
-            <Col span={10}>
-              <Form.Item
-                label="Start Date"
-                name="startDate"
-                rules={[{ required: true, message: "Please select a start date!" }]}
-              >
-                <DatePicker format="YYYY-MM-DD" />
-              </Form.Item>
-            </Col>
-            <Col span={6}>
+            <Col span={12}>
               <Form.Item
                 label="Start Time"
                 name="startTime"
@@ -89,21 +68,10 @@ const ScheduleActivity = () => {
                 />
               </Form.Item>
             </Col>
-          </Row>
-          <Row gutter={8}>
-            <Col span={10}>
-              <Form.Item
-                label="End Date"
-                name="endDate"
-                rules={[{ required: true, message: "Please select an end date!" }]}
-              >
-                <DatePicker format="YYYY-MM-DD" />
-              </Form.Item>
-            </Col>
-            <Col span={6}>
+            <Col span={12}>
               <Form.Item
                 label="End Time"
-                name="endTime"   
+                name="endTime"
                 rules={[{ required: true, message: "Please select an end time!" }]}
               >
                 <TimePicker

@@ -45,7 +45,7 @@ public class NotificationEntity {
     private UserEntity user;
 
     // Relationship to Schedule (optional, nullable)
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id", nullable = true)
     @JsonIgnore // Prevent serialization of the schedule field
     private ScheduleEntity schedule;

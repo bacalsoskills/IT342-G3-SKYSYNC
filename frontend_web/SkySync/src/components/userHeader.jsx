@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Menu, Dropdown, Button, Spin, Badge, Drawer } from "antd";
-import { UserOutlined, LogoutOutlined, BellOutlined, MenuOutlined } from "@ant-design/icons";
+import { UserOutlined, LogoutOutlined, BellOutlined, MenuOutlined, CheckOutlined } from "@ant-design/icons";
 import Logo from "../assets/logo.png";
-import { getUserNotifications } from "../services/notificationService";
+import { getUnreadNotifications } from "../services/notificationService"; // Ensure this is imported
 import { getUserDetails } from "../services/userService";
 import { logout } from "../services/authService";
+import { markNotificationAsRead } from "../services/notificationService";
 import { useNavigate } from "react-router-dom";
 
 const capitalize = (str) => {
@@ -51,10 +52,14 @@ const UserHeader = () => {
     setLoadingNotifications(true);
     try {
       const userId = localStorage.getItem("userId");
-      const data = await getUserNotifications(userId);
-      setNotifications(data.slice(0, 5));
+      if (!userId) {
+        console.error("User ID not found in localStorage.");
+        return;
+      }
+      const data = await getUnreadNotifications(userId); // Fetch only unread notifications
+      setNotifications(data); // Set the state with unread notifications
     } catch (error) {
-      setNotifications([]);
+      console.error("Failed to fetch notifications:", error);
     } finally {
       setLoadingNotifications(false);
     }
@@ -80,44 +85,86 @@ const UserHeader = () => {
     }
   };
 
-  const notificationMenu = (
-    <Menu>
-      {loadingNotifications ? (
-        <Menu.Item key="loading">
-          <Spin size="small" /> Loading notifications...
-        </Menu.Item>
-      ) : (
-        <>
-          {notifications.length > 0 ? (
-            notifications.map((notification, index) => (
-              <Menu.Item key={index}>
-                <div style={{ whiteSpace: "normal" }}>{notification.message}</div>
-              </Menu.Item>
-            ))
-          ) : (
-            <Menu.Item key="no-notifications">No notifications available</Menu.Item>
-          )}
-          <Menu.Divider />
-          <Menu.Item key="view-all">
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      await markNotificationAsRead(notificationId);
+      // Remove the notification from the dropdown after marking it as read
+      setNotifications((prevNotifications) =>
+        prevNotifications.filter((notification) => notification.id !== notificationId)
+      );
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
+  const notificationMenuItems = loadingNotifications
+    ? [
+        {
+          key: "loading",
+          label: (
+            <div>
+              <Spin size="small" /> Loading notifications...
+            </div>
+          ),
+        },
+      ]
+    : notifications.length > 0
+    ? [
+        ...notifications.map((notification, index) => ({
+          key: index,
+          label: (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ whiteSpace: "normal" }}>{notification.message}</span>
+              <Button
+                type="text"
+                icon={<CheckOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent dropdown from closing
+                  handleMarkAsRead(notification.id);
+                }}
+              />
+            </div>
+          ),
+        })),
+        { type: "divider" },
+        {
+          key: "view-all",
+          label: (
             <Button type="link" onClick={() => navigate("/notifications")}>
               View All Notifications
             </Button>
-          </Menu.Item>
-        </>
-      )}
-    </Menu>
-  );
+          ),
+        },
+      ]
+    : [
+        {
+          key: "no-notifications",
+          label: (
+            <Button type="link" onClick={() => navigate("/notifications")} style={{ padding: 0 }}>
+              No unread notifications
+            </Button>
+          ),
+        },
+      ];
 
-  const userMenu = (
-    <Menu>
-      <Menu.Item key="profile" onClick={handleProfile}>
-        <UserOutlined /> User Profile
-      </Menu.Item>
-      <Menu.Item key="logout" onClick={handleLogout}>
-        <LogoutOutlined /> Logout
-      </Menu.Item>
-    </Menu>
-  );
+  const userMenuItems = [
+    {
+      key: "profile",
+      label: (
+        <div onClick={handleProfile}>
+          <UserOutlined /> User Profile
+        </div>
+      ),
+    },
+    {
+      key: "logout",
+      label: (
+        <div onClick={handleLogout}>
+          <LogoutOutlined /> Logout
+        </div>
+      ),
+    },
+  ];
 
   return (
     <header className="bg-white shadow-sm">
@@ -159,7 +206,7 @@ const UserHeader = () => {
           {/* Account Menu and Notification */}
           <div className="d-none d-md-flex align-items-center">
             {/* Notification Dropdown */}
-            <Dropdown overlay={notificationMenu} trigger={["click"]}>
+            <Dropdown menu={{ items: notificationMenuItems }} trigger={["click"]}>
               <Badge count={notifications.length} offset={[-15, 0]}>
                 <Button type="text">
                   <BellOutlined style={{ fontSize: "20px", cursor: "pointer" }} />
@@ -168,7 +215,7 @@ const UserHeader = () => {
             </Dropdown>
 
             {/* User Dropdown */}
-            <Dropdown overlay={userMenu} trigger={["click"]}>
+            <Dropdown menu={{ items: userMenuItems }} trigger={["click"]}>
               <Button type="text" className="d-flex align-items-center ms-3">
                 <UserOutlined className="" style={{ marginRight: -4 }} />
                 {loading ? "Loading..." : `${capitalize(user.firstName)} ${capitalize(user.lastName)}`}
@@ -183,19 +230,32 @@ const UserHeader = () => {
         title="Menu"
         placement="right"
         onClose={() => setDrawerVisible(false)}
-        visible={drawerVisible}
+        open={drawerVisible}
       >
-        <Menu>
-          <Menu.Item key="my-activities" onClick={() => navigate("/myactivity")}>
-            My Activities
-          </Menu.Item>
-          <Menu.Item key="profile" onClick={handleProfile}>
-            <UserOutlined /> User Profile
-          </Menu.Item>
-          <Menu.Item key="logout" onClick={handleLogout}>
-            <LogoutOutlined /> Logout
-          </Menu.Item>
-        </Menu>
+        <Menu
+          items={[
+            {
+              key: "my-activities",
+              label: <div onClick={() => navigate("/myactivity")}>My Activities</div>,
+            },
+            {
+              key: "profile",
+              label: (
+                <div onClick={handleProfile}>
+                  <UserOutlined /> User Profile
+                </div>
+              ),
+            },
+            {
+              key: "logout",
+              label: (
+                <div onClick={handleLogout}>
+                  <LogoutOutlined /> Logout
+                </div>
+              ),
+            },
+          ]}
+        />
       </Drawer>
     </header>
   );

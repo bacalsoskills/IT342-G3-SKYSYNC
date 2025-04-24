@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Card, Spin, Alert, List, Button } from "antd";
+import { Card, Spin, Alert, List, Button, Divider } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getUserActivities } from "../services/activityService";
 import UserHeader from "../components/userHeader";
+import moment from "moment"; // Ensure moment is installed
 
 const MyActivity = () => {
   const [activities, setActivities] = useState([]);
@@ -30,61 +31,77 @@ const MyActivity = () => {
     fetchUserActivities();
   }, [userId]);
 
+  // Group activities by creation date
+  const groupedActivities = activities.reduce((acc, activity) => {
+    const date = moment(activity.createdAt).format("YYYY-MM-DD"); // Format the creation date
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(activity);
+    return acc;
+  }, {});
+
   return (
     <div>
       <UserHeader />
-    <div className="container-fluid" style={{ minHeight: "100vh", background: "#fff", paddingTop: "24px" }}>
-      <div className="row justify-content-center">
-        <div className="col-12 col-md-10 col-lg-8">
-          <div className="d-flex justify-content-start mb-3">
-            <Button type="default" onClick={() => navigate("/dashboard")}>
-              Back to Dashboard
-            </Button>
+      <div className="container-fluid" style={{ minHeight: "100vh", background: "#fff", paddingTop: "24px" }}>
+        <div className="row justify-content-center">
+          <div className="col-12 col-md-10 col-lg-8">
+            <div className="d-flex justify-content-start mb-3">
+              <Button type="default" onClick={() => navigate("/dashboard")}>
+                Back to Dashboard
+              </Button>
+            </div>
+            <h2 className="mb-3">My Activities</h2>
+            <Card style={{ padding: "20px", borderRadius: "8px" }}>
+              {loading ? (
+                <div style={{ textAlign: "center", padding: "20px" }}>
+                  <Spin size="large" />
+                </div>
+              ) : error ? (
+                <Alert
+                  message={error}
+                  type="error"
+                  showIcon
+                  style={{ marginBottom: "16px" }}
+                />
+              ) : activities && activities.length > 0 ? (
+                Object.keys(groupedActivities).map((date) => (
+                  <div key={date}>
+                    <Divider orientation="left">
+                      {moment(date).format("dddd, MMMM Do YYYY")} {/* Display day and date */}
+                    </Divider>
+                    <List
+                      bordered
+                      dataSource={groupedActivities[date]}
+                      renderItem={(activity) => (
+                        <List.Item>
+                          <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                            <div>
+                              <strong>{activity.name}</strong>
+                              <div style={{ color: "#666", marginTop: "4px" }}>
+                                {activity.description}
+                              </div>
+                            </div>
+                            <Button
+                              type="primary"
+                              onClick={() => navigate(`/activitydetails`, { state: { activity } })}
+                            >
+                              View Details
+                            </Button>
+                          </div>
+                        </List.Item>
+                      )}
+                    />
+                  </div>
+                ))
+              ) : (
+                <p>No activities found.</p>
+              )}
+            </Card>
           </div>
-          <h2 className="mb-3">My Activities</h2>
-          <Card style={{ padding: "20px", borderRadius: "8px" }}>
-            {loading ? (
-              <div style={{ textAlign: "center", padding: "20px" }}>
-                <Spin size="large" />
-              </div>
-            ) : error ? (
-              <Alert
-                message={error}
-                type="error"
-                showIcon
-                style={{ marginBottom: "16px" }}
-              />
-            ) : activities && activities.length > 0 ? (
-              <List
-                header={<strong>Saved Activities:</strong>}
-                bordered
-                dataSource={activities}
-                renderItem={(activity) => (
-                  <List.Item>
-                    <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                      <div>
-                        <strong>{activity.name}</strong>
-                        <div style={{ color: "#666", marginTop: "4px" }}>
-                          {activity.description}
-                        </div>
-                      </div>
-                      <Button
-                        type="primary"
-                        onClick={() => navigate(`/activitydetails`, { state: { activity } })}
-                      >
-                        View Details
-                      </Button>
-                    </div>
-                  </List.Item>
-                )}
-              />
-            ) : (
-              <p>No saved activities found.</p>
-            )}
-          </Card>
         </div>
       </div>
-    </div>
     </div>
   );
 };

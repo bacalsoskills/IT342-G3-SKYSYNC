@@ -197,7 +197,7 @@ public class WeatherService {
     private int getMostFrequentWeatherCodeValue(JSONArray weatherCodes, int dayIndex) {
         int start = dayIndex * 24;
         int end = Math.min(start + 24, weatherCodes.size());
-    
+
         // Define priority weather codes (from 45 to 82)
         List<Integer> priorityWeatherCodes = List.of(
             45, 48, // Fog-related codes
@@ -206,22 +206,16 @@ public class WeatherService {
             71, 73, 75, // Snow-related codes
             80, 81, 82  // Rain showers
         );
-    
-        // Check for priority weather codes first
-        for (int i = start; i < end; i++) {
-            int code = ((Long) weatherCodes.get(i)).intValue();
-            if (priorityWeatherCodes.contains(code)) {
-                return code; // Return the first priority code found
-            }
-        }
-    
-        // If no priority weather codes are found, calculate the most frequent code
+
+        // Calculate the weighted frequency of weather codes
         Map<Integer, Integer> frequencyMap = new HashMap<>();
         for (int i = start; i < end; i++) {
             int code = ((Long) weatherCodes.get(i)).intValue();
-            frequencyMap.put(code, frequencyMap.getOrDefault(code, 0) + 1);
+            int weight = priorityWeatherCodes.contains(code) ? 2 : 1; // Priority codes get +2, others get +1
+            frequencyMap.put(code, frequencyMap.getOrDefault(code, 0) + weight);
         }
-    
+
+        // Return the most frequent weather code
         return frequencyMap.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
