@@ -5,6 +5,9 @@ import com.frontend.mobile.model.AuthResponse
 import com.frontend.mobile.model.DailyWeatherDTO
 import com.frontend.mobile.model.WardrobeRecommendation
 import com.frontend.mobile.model.ActivityDTO
+import com.frontend.mobile.model.ScheduleResponseDTO
+import com.frontend.mobile.model.ScheduleRequestDTO
+import com.frontend.mobile.model.NotificationDTO
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
@@ -64,4 +67,17 @@ interface ApiService {
         @Query("userId") userId: Long,
         @Header("Authorization") token: String
     ): Call<List<ActivityDTO>>
+
+    @POST("api/schedules/create")
+    fun createSchedule(
+        @Query("userId") userId: Long,
+        @Header("Authorization") token: String,
+        @Body scheduleRequest: ScheduleRequestDTO
+    ): Call<ScheduleResponseDTO>
+
+    @GET("api/notifications/user/{userId}")
+    fun getUserNotifications(
+        @Path("userId") userId: Long,
+        @Header("Authorization") token: String
+    ): Call<List<NotificationDTO>>
 }

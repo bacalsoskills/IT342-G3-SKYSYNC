@@ -82,16 +82,15 @@ fun ViewAllRecommendedActivities(
             return
         }
 
-        val activityEntity = ActivityDTO(
-            name = activity.name,
-            description = activity.description,
-            weatherCondition = activity.weatherCondition
-        )
-
-        apiService.saveActivity(userId, "Bearer $token", activityEntity).enqueue(object : Callback<ActivityDTO> {
+        apiService.saveActivity(userId, "Bearer $token", activity).enqueue(object : Callback<ActivityDTO> {
             override fun onResponse(call: Call<ActivityDTO>, response: Response<ActivityDTO>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(context, "Activity added successfully", Toast.LENGTH_SHORT).show()
+                    val savedActivity = response.body()
+                    if (savedActivity != null) {
+                        Toast.makeText(context, "Activity added successfully", Toast.LENGTH_SHORT).show()
+                        // Navigate to ScheduleActivity screen with the saved activity ID
+                        navController.navigate("schedule_activity/${savedActivity.activityId}/${savedActivity.name}/${savedActivity.description}")
+                    }
                 } else {
                     Toast.makeText(context, "Failed to add activity", Toast.LENGTH_SHORT).show()
                 }

@@ -21,6 +21,7 @@ const NotificationPage = () => {
     setLoading(true);
     try {
       const data = await getUserNotifications(userId);
+      console.log("Notifications to Render (Sorted by ID):", data); // Debugging
       setNotifications(data);
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
@@ -48,7 +49,7 @@ const NotificationPage = () => {
           ) : notifications.length > 0 ? (
             <List
               bordered
-              dataSource={notifications}
+              dataSource={notifications} // Render notifications in the order they are provided
               renderItem={(notification) => (
                 <List.Item>
                   <div>

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -21,6 +22,7 @@ import com.frontend.mobile.viewactivities.ViewAllRecommendedActivities
 import com.frontend.mobile.ui.activitypage.MyActivityPage
 import com.frontend.mobile.viewactivities.ViewAllRecommendedWardrobes
 import com.frontend.mobile.viewactivities.ViewWeeklyForecast
+import com.frontend.mobile.viewactivities.ScheduleActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -153,6 +155,26 @@ fun AppNavigator() {
         ) { backStackEntry ->
             val city = backStackEntry.arguments?.getString("city") ?: "Cebu"
             ViewWeeklyForecast(city = city, navController = navController)
+        }
+
+        // Schedule Activity Screen
+        composable(
+            "schedule_activity/{activityId}/{activityName}/{activityDescription}",
+            arguments = listOf(
+                navArgument("activityId") { type = NavType.LongType },
+                navArgument("activityName") { type = NavType.StringType },
+                navArgument("activityDescription") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val activityId = backStackEntry.arguments?.getLong("activityId") ?: -1L
+            val activityName = backStackEntry.arguments?.getString("activityName") ?: ""
+            val activityDescription = backStackEntry.arguments?.getString("activityDescription") ?: ""
+            ScheduleActivity(
+                activityId = activityId,
+                activityName = activityName,
+                activityDescription = activityDescription,
+                navController = navController
+            )
         }
     }
 }
