@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Card, Spin, Alert, List, Button, Divider } from "antd";
+import { Card, Spin, Alert, List, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getUserActivities } from "../services/activityService";
 import UserHeader from "../components/userHeader";
-import moment from "moment"; // Ensure moment is installed
 
 const MyActivity = () => {
   const [activities, setActivities] = useState([]);
@@ -19,7 +18,11 @@ const MyActivity = () => {
 
       try {
         const data = await getUserActivities(userId);
-        setActivities(data);
+
+        // Sort activities in descending order by activityId
+        const sortedActivities = data.sort((a, b) => b.activityId - a.activityId);
+
+        setActivities(sortedActivities);
       } catch (err) {
         console.error("Error fetching user activities:", err);
         setError("Failed to fetch user activities. Please try again.");
@@ -30,16 +33,6 @@ const MyActivity = () => {
 
     fetchUserActivities();
   }, [userId]);
-
-  // Group activities by creation date
-  const groupedActivities = activities.reduce((acc, activity) => {
-    const date = moment(activity.createdAt).startOf("day").format("YYYY-MM-DD"); // Normalize to start of the day
-    if (!acc[date]) {
-      acc[date] = [];
-    }
-    acc[date].push(activity);
-    return acc;
-  }, {});
 
   return (
     <div>

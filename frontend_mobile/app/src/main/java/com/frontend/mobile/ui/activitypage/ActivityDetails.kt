@@ -46,6 +46,13 @@ fun ActivityDetails(navController: NavController, activityId: Long) {
             return@LaunchedEffect
         }
 
+        val userId = sharedPreferences.getLong("userId", -1L) // Retrieve the logged-in user's ID
+        if (userId == -1L) {
+            Toast.makeText(context, "User ID not found. Please log in again.", Toast.LENGTH_SHORT).show()
+            isLoading = false
+            return@LaunchedEffect
+        }
+
         try {
             // Fetch schedule
             val scheduleResponse = apiService.getScheduleByActivityId(activityId, "Bearer $token")
@@ -58,11 +65,14 @@ fun ActivityDetails(navController: NavController, activityId: Long) {
         }
 
         // Fetch activity details
-        apiService.getUserActivities(userId = 33, token = "Bearer $token").enqueue(object : Callback<List<ActivityDTO>> {
+        apiService.getUserActivities(userId = userId, token = "Bearer $token").enqueue(object : Callback<List<ActivityDTO>> {
             override fun onResponse(call: Call<List<ActivityDTO>>, response: Response<List<ActivityDTO>>) {
                 if (response.isSuccessful) {
                     val activities = response.body()
-                    activity = activities?.find { it.activityId == activityId }
+                    activity = activities?.find { it.activityId == activityId } // Match activityId
+                    if (activity == null) {
+                        Toast.makeText(context, "Activity not found", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Toast.makeText(context, "Failed to fetch activity details", Toast.LENGTH_SHORT).show()
                 }

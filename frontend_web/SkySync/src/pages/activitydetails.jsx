@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, Form, Button, TimePicker, Input, message, Spin, Row, Col } from "antd";
 import { getActivitySchedule, updateSchedule } from "../services/scheduleService";
+import { deleteActivity } from "../services/activityService"; // Import the deleteActivity function
 import moment from "moment";
 
 const ActivityDetails = () => {
@@ -54,6 +55,17 @@ const ActivityDetails = () => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await deleteActivity(activity.activityId); // Call the delete endpoint
+      message.success("Activity deleted successfully!");
+      navigate("/myactivity"); // Redirect to the My Activities page
+    } catch (err) {
+      console.error("Error deleting activity:", err);
+      message.error("Failed to delete activity. Please try again.");
+    }
+  };
+
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <Button type="default" onClick={() => navigate("/myactivity")} style={{ marginBottom: "20px" }}>
@@ -63,6 +75,9 @@ const ActivityDetails = () => {
       <Card style={{ marginBottom: "20px" }}>
         <p><strong>Name:</strong> {activity.name}</p>
         <p><strong>Description:</strong> {activity.description}</p>
+        <Button type="primary" danger onClick={handleDelete}>
+          Delete Activity
+        </Button>
       </Card>
       <h3>Schedule</h3>
       {loading ? (

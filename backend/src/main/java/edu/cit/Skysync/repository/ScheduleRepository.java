@@ -14,4 +14,5 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> 
     List<ScheduleEntity> findByUserAndStartTimeBetween(UserEntity user, LocalDateTime start, LocalDateTime end);
     List<ScheduleEntity> findByUserAndDayOfWeek(UserEntity user, String dayOfWeek); // New method
     Optional<ScheduleEntity> findByActivity_ActivityId(Long activityId);
+    void deleteByActivity_ActivityId(Long activityId);
 }
