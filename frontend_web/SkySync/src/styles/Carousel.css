@@ -1,0 +1,17 @@
+/* Override the default Ant Design carousel arrow styles */
+.slick-prev,
+.slick-next {
+  color: black !important; /* Make the arrows black */
+  font-size: 20px; /* Adjust the size */
+  z-index: 1; /* Ensure the arrows are visible */
+}
+
+.slick-prev:hover,
+.slick-next:hover {
+  color: black !important; /* Keep the arrows black on hover */
+}
+
+.slick-prev::before,
+.slick-next::before {
+  content: ''; /* Remove the default blue arrow icons */
+}

@@ -33,7 +33,7 @@ const MyActivity = () => {
 
   // Group activities by creation date
   const groupedActivities = activities.reduce((acc, activity) => {
-    const date = moment(activity.createdAt).format("YYYY-MM-DD"); // Format the creation date
+    const date = moment(activity.createdAt).startOf("day").format("YYYY-MM-DD"); // Normalize to start of the day
     if (!acc[date]) {
       acc[date] = [];
     }
@@ -66,35 +66,28 @@ const MyActivity = () => {
                   style={{ marginBottom: "16px" }}
                 />
               ) : activities && activities.length > 0 ? (
-                Object.keys(groupedActivities).map((date) => (
-                  <div key={date}>
-                    <Divider orientation="left">
-                      {moment(date).format("dddd, MMMM Do YYYY")} {/* Display day and date */}
-                    </Divider>
-                    <List
-                      bordered
-                      dataSource={groupedActivities[date]}
-                      renderItem={(activity) => (
-                        <List.Item>
-                          <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                            <div>
-                              <strong>{activity.name}</strong>
-                              <div style={{ color: "#666", marginTop: "4px" }}>
-                                {activity.description}
-                              </div>
-                            </div>
-                            <Button
-                              type="primary"
-                              onClick={() => navigate(`/activitydetails`, { state: { activity } })}
-                            >
-                              View Details
-                            </Button>
+                <List
+                  bordered
+                  dataSource={activities}
+                  renderItem={(activity) => (
+                    <List.Item>
+                      <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                        <div>
+                          <strong>{activity.name}</strong>
+                          <div style={{ color: "#666", marginTop: "4px" }}>
+                            {activity.description}
                           </div>
-                        </List.Item>
-                      )}
-                    />
-                  </div>
-                ))
+                        </div>
+                        <Button
+                          type="primary"
+                          onClick={() => navigate(`/activitydetails`, { state: { activity } })}
+                        >
+                          View Details
+                        </Button>
+                      </div>
+                    </List.Item>
+                  )}
+                />
               ) : (
                 <p>No activities found.</p>
               )}

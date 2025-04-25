@@ -1,6 +1,5 @@
 package com.frontend.mobile.viewactivities
 
-import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.widget.Toast
@@ -23,6 +22,7 @@ import com.frontend.mobile.model.ScheduleResponseDTO
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
@@ -38,7 +38,8 @@ fun ScheduleActivity(
     val token = sharedPreferences.getString("authToken", null)
     val userId = sharedPreferences.getLong("userId", -1L)
 
-    var selectedDate by remember { mutableStateOf("") }
+    // Automatically set the current date
+    val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
     var selectedStartTime by remember { mutableStateOf("") }
     var selectedEndTime by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -49,14 +50,14 @@ fun ScheduleActivity(
             return
         }
 
-        if (selectedDate.isEmpty() || selectedStartTime.isEmpty() || selectedEndTime.isEmpty()) {
-            Toast.makeText(context, "Please select date and time", Toast.LENGTH_SHORT).show()
+        if (selectedStartTime.isEmpty() || selectedEndTime.isEmpty()) {
+            Toast.makeText(context, "Please select start and end times", Toast.LENGTH_SHORT).show()
             return
         }
 
         // Construct startTime and endTime without timezone offset
-        val startTime = "$selectedDate" + "T" + "$selectedStartTime"
-        val endTime = "$selectedDate" + "T" + "$selectedEndTime"
+        val startTime = "$currentDate" + "T" + "$selectedStartTime"
+        val endTime = "$currentDate" + "T" + "$selectedEndTime"
 
         val scheduleRequest = ScheduleRequestDTO(
             activityId = activityId,
@@ -105,25 +106,7 @@ fun ScheduleActivity(
             ) {
                 Text("Activity: $activityName", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Text("Description: $activityDescription", fontSize = 16.sp)
-
-                // Date Picker
-                Button(
-                    onClick = {
-                        val calendar = Calendar.getInstance()
-                        DatePickerDialog(
-                            context,
-                            { _, year, month, dayOfMonth ->
-                                selectedDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
-                            },
-                            calendar.get(Calendar.YEAR),
-                            calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH)
-                        ).show()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(if (selectedDate.isEmpty()) "Select Date" else "Date: $selectedDate")
-                }
+                Text("Date: $currentDate", fontSize = 16.sp, fontWeight = FontWeight.Medium)
 
                 // Start Time Picker
                 Button(

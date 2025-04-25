@@ -47,7 +47,7 @@ fun MyActivityPage(navController: NavHostController, onBackClick: () -> Unit) {
         apiService.getUserActivities(userId, "Bearer $token").enqueue(object : Callback<List<ActivityDTO>> {
             override fun onResponse(call: Call<List<ActivityDTO>>, response: Response<List<ActivityDTO>>) {
                 if (response.isSuccessful) {
-                    activities = response.body() ?: emptyList()
+                    activities = response.body()?.sortedByDescending { it.activityId } ?: emptyList() // Sort by activityId in descending order
                     isLoading = false
                 } else {
                     errorMessage = "Error: ${response.errorBody()?.string() ?: "Unknown error"}"
@@ -114,7 +114,7 @@ fun MyActivityPage(navController: NavHostController, onBackClick: () -> Unit) {
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     items(activities) { activity ->
-                        ActivityCard(activity = activity)
+                        ActivityCard(activity = activity, navController = navController)
                     }
                 }
             }
@@ -123,7 +123,7 @@ fun MyActivityPage(navController: NavHostController, onBackClick: () -> Unit) {
 }
 
 @Composable
-fun ActivityCard(activity: ActivityDTO) {
+fun ActivityCard(activity: ActivityDTO, navController: NavHostController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -143,12 +143,15 @@ fun ActivityCard(activity: ActivityDTO) {
                 fontSize = 14.sp,
                 color = Color.Gray
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Weather Condition: ${activity.weatherCondition}",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = {
+                    navController.navigate("activity_details/${activity.activityId}")
+                },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text("View Details")
+            }
         }
     }
 }
