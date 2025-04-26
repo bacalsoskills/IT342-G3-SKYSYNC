@@ -54,3 +54,19 @@ export const getUserActivities = async (userId) => {
     throw error;
   }
 };
+
+export const deleteActivity = async (activityId) => {
+  try {
+    const authToken = localStorage.getItem("authToken"); // Retrieve the token from localStorage
+    const response = await axios.delete(`${API_URL}`, {
+      params: { activityId },
+      headers: {
+        Authorization: `Bearer ${authToken}`, // Include the token in the Authorization header
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting activity:", error);
+    throw error;
+  }
+};

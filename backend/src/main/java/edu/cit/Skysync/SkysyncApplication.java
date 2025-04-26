@@ -56,7 +56,7 @@ public class SkysyncApplication {
         return TriggerBuilder.newTrigger()
                 .forJob(dailyWeatherNotificationJobDetail)
                 .withIdentity("dailyWeatherNotificationTrigger")
-                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(03, 11)) // Adjust time for testing
+                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(00, 00))
                 .build();
     }
 

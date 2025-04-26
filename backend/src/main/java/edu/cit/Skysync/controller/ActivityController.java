@@ -82,7 +82,7 @@ public class ActivityController {
     public ResponseEntity<String> deleteActivity(@RequestParam Long activityId) {
         boolean isDeleted = activityService.deleteActivityById(activityId);
         if (isDeleted) {
-            return ResponseEntity.ok("Activity deleted successfully.");
+            return ResponseEntity.ok("Activity and associated schedules deleted successfully.");
         } else {
             return ResponseEntity.notFound().build();
         }

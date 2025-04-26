@@ -4,21 +4,27 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.cit.Skysync.entity.ActivityEntity;
 import edu.cit.Skysync.entity.RecommendedActivityEntity;
 import edu.cit.Skysync.entity.UserEntity;
 import edu.cit.Skysync.repository.ActivityRepository;
 import edu.cit.Skysync.repository.RecommendedActivityRepository;
+import edu.cit.Skysync.repository.ScheduleRepository; // Import ScheduleRepository
 
 @Service
 public class ActivityService {
     private final ActivityRepository activityRepository;
     private final RecommendedActivityRepository recommendedActivityRepository;
+    private final ScheduleRepository scheduleRepository;
 
-    public ActivityService(ActivityRepository activityRepository, RecommendedActivityRepository recommendedActivityRepository) {
+    public ActivityService(ActivityRepository activityRepository, 
+                           RecommendedActivityRepository recommendedActivityRepository,
+                           ScheduleRepository scheduleRepository) {
         this.activityRepository = activityRepository;
         this.recommendedActivityRepository = recommendedActivityRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     public List<RecommendedActivityEntity> getRecommendedActivities(String weatherCondition) {
@@ -69,8 +75,13 @@ public class ActivityService {
                 .collect(Collectors.toList());
     }*/
 
+    @Transactional // Ensure this method runs within a transaction
     public boolean deleteActivityById(Long activityId) {
         if (activityRepository.existsById(activityId)) {
+            // Delete associated schedules first
+            scheduleRepository.deleteByActivity_ActivityId(activityId);
+
+            // Then delete the activity
             activityRepository.deleteById(activityId);
             return true;
         }

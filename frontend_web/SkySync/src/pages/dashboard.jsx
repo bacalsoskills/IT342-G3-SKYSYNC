@@ -94,13 +94,24 @@ const Dashboard = () => {
   };
 
   const fetchActivityData = async (cityName) => {
+    if (!cityName.trim()) {
+      setError("Please enter a city name"); // Display error for empty input
+      return;
+    }
+
     setActivityLoading(true);
+    setError(null);
+
     try {
       const data = await getActivityRecommendationsByCity(cityName);
-      setActivityData(data);
+      if (data && data.length > 0) {
+        setActivityData(data);
+      } else {
+        setError("City not found. Please check the spelling or try another city."); // Display error for incorrect city
+      }
     } catch (err) {
       console.error("Error fetching activity recommendations:", err);
-      setError("Failed to fetch activity recommendations");
+      setError("City not found. Please check the spelling or try another city."); // Handle incorrect city
     } finally {
       setActivityLoading(false);
     }
