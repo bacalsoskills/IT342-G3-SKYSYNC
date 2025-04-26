@@ -470,17 +470,19 @@ fun HomePage(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
+
         Button(
-            onClick = {
-                navController.navigate("view_weekly_forecast/$city")
-            },
+            onClick = { navController.navigate("view_weekly_forecast/$city") },
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp)
+                .padding(32.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF2D9CDB))
         ) {
-            Text("View Weekly Forecast")
+            Text("View Weekly Forecast", color = Color.White)
         }
+
+
+
 
         // Wardrobe Section//////////////////////////////////////////////////////////////////////////////////
         Text("Wardrobe", color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold)
@@ -532,16 +534,15 @@ fun HomePage(navController: NavHostController) {
         }
 
 
+
         Button(
-            onClick = {
-                navController.navigate("view_all_wardrobe/$city")
-            },
+            onClick = { navController.navigate("view_all_wardrobe/$city") },
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp)
+                .padding(32.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF2D9CDB))
         ) {
-            Text("View More Wardrobes")
+            Text("View More Wardrobes", color = Color.White)
         }
 
 
@@ -588,15 +589,13 @@ fun HomePage(navController: NavHostController) {
             Text("Fetching activity recommendations...", color = Color.Gray)
         }
         Button(
-            onClick = {
-                navController.navigate("view_all_activities/$city")
-            },
+            onClick = { navController.navigate("view_all_activities/$city") },
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp)
+                .padding(32.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF2D9CDB))
         ) {
-            Text("View More Activities")
+            Text("View More Activities", color = Color.White)
         }
 
 

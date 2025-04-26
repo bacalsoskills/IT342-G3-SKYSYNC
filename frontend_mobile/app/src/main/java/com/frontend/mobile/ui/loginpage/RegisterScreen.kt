@@ -52,18 +52,19 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
-    // Function to capitalize first and last name properly
+    // Success dialog state
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
+    // Function to capitalize names
     fun capitalizeName(name: String): String {
         return name.split(" ")
             .joinToString(" ") { it.capitalize() }
     }
 
-    // Function to validate email (check if it's a valid Gmail address)
     fun isValidEmail(input: String): Boolean {
         return input.isNotEmpty() && input.contains("@")
     }
 
-    // Function to validate password strength
     fun isStrongPassword(input: String): Boolean {
         return input.length >= 8 &&
                 input.any { it.isLowerCase() } &&
@@ -71,7 +72,6 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                 input.any { it.isDigit() }
     }
 
-    // Background gradient with blue color
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(Color(0xFFB2FEFA), Color(0xFF0ED2F7))
     )
@@ -81,10 +81,7 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
             .fillMaxSize()
             .background(brush = backgroundBrush),
         contentAlignment = Alignment.TopCenter
-
-    )
-
-    {
+    ) {
         Column(
             modifier = Modifier
                 .padding(top = 60.dp, start = 35.dp, end = 35.dp)
@@ -93,16 +90,13 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(50.dp))
-            // Logo
+
             Image(
                 painter = painterResource(id = R.drawable.imagelogo),
                 contentDescription = "SkySync Logo",
                 modifier = Modifier.height(140.dp)
             )
 
-
-
-            // Register title
             Text(
                 text = "Register",
                 fontSize = 24.sp,
@@ -111,11 +105,9 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
-            // Input Fields
             Column(modifier = Modifier.fillMaxWidth()) {
-
                 Spacer(modifier = Modifier.height(8.dp))
-                // First Name
+
                 Text("First Name", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
                 OutlinedTextField(
                     value = firstName,
@@ -127,19 +119,20 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                     isError = firstNameError,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp) // Match the vertical padding as in the email field
+                        .padding(vertical = 4.dp)
                         .background(Color.White, RoundedCornerShape(10.dp)),
                 )
                 if (firstNameError) {
                     Text("First Name must not be empty", color = Color.Red, fontSize = 12.sp)
                 }
 
-                // Last Name
-// Last Name
                 Text("Last Name", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
                 OutlinedTextField(
                     value = lastName,
-                    onValueChange = { lastName = capitalizeName(it) },
+                    onValueChange = {
+                        lastName = capitalizeName(it)
+                        lastNameError = false
+                    },
                     singleLine = true,
                     isError = lastNameError,
                     modifier = Modifier
@@ -151,12 +144,13 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                     Text("Last Name must not be empty", color = Color.Red, fontSize = 12.sp)
                 }
 
-
-// Email
                 Text("Email", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = {
+                        email = it
+                        emailError = false
+                    },
                     singleLine = true,
                     isError = emailError,
                     modifier = Modifier
@@ -168,12 +162,13 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                     Text("Please enter a valid email", color = Color.Red, fontSize = 12.sp)
                 }
 
-
-// Password
                 Text("Password", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = {
+                        password = it
+                        passwordError = false
+                    },
                     singleLine = true,
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -198,12 +193,13 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                     )
                 }
 
-
-// Confirm Password
                 Text("Confirm Password", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
                 OutlinedTextField(
                     value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
+                    onValueChange = {
+                        confirmPassword = it
+                        confirmPasswordError = false
+                    },
                     singleLine = true,
                     visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -229,10 +225,8 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
 
             val apiService = ApiClient.getClient().create(ApiService::class.java)
 
-            // Register Button
             Button(
                 onClick = {
-                    // Perform validation
                     emailError = !isValidEmail(email)
                     passwordError = !isStrongPassword(password)
                     firstNameError = firstName.isEmpty()
@@ -249,21 +243,20 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                         apiService.registerUser(user).enqueue(object : Callback<User> {
                             override fun onResponse(call: Call<User>, response: Response<User>) {
                                 if (response.isSuccessful) {
-                                    onBackToLogin() // Navigate to login screen
+                                    showSuccessDialog = true
                                 } else {
-                                    // Handle error
                                     println("Error: ${response.errorBody()?.string()}")
                                 }
                             }
 
                             override fun onFailure(call: Call<User>, t: Throwable) {
-                                // Handle failure
                                 println("Failure: ${t.message}")
                             }
                         })
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF2979FF)),
                 shape = RoundedCornerShape(12.dp)
@@ -271,17 +264,26 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                 Text("Register")
             }
 
-
-            // Back to Login Button
             TextButton(onClick = { onBackToLogin() }) {
                 Text("Back to Login", color = Color.Black, fontSize = 16.sp)
-                Spacer(modifier = Modifier.height(100.dp))
             }
-
         }
 
+        // Show dialog after successful registration
+        if (showSuccessDialog) {
+            AlertDialog(
+                onDismissRequest = {},
+                title = { Text("Success") },
+                text = { Text("Registered successfully!") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showSuccessDialog = false
+                        onBackToLogin()
+                    }) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
     }
-
 }
-
-

@@ -1,20 +1,25 @@
 package com.frontend.mobile.viewactivities
 
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.frontend.mobile.R
 import com.frontend.mobile.api.ApiClient
 import com.frontend.mobile.api.ApiService
 import com.frontend.mobile.model.DailyWeatherDTO
@@ -22,6 +27,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewWeeklyForecast(city: String, navController: NavHostController) {
     val apiService = ApiClient.getClient().create(ApiService::class.java)
@@ -30,7 +36,6 @@ fun ViewWeeklyForecast(city: String, navController: NavHostController) {
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Fetch weekly forecast
     LaunchedEffect(city) {
         apiService.getWeeklyWeatherByCity(city).enqueue(object : Callback<List<DailyWeatherDTO>> {
             override fun onResponse(
@@ -53,74 +58,97 @@ fun ViewWeeklyForecast(city: String, navController: NavHostController) {
         })
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(scrollState)
+            .background(Color(0xFFA7F0F9))
     ) {
-        // Back Arrow
+        // Back button
         IconButton(
-            onClick = { navController.popBackStack() }, // Navigates back to the HomePage
+            onClick = { navController.popBackStack() },
             modifier = Modifier
-                .padding(top = 16.dp, start = 8.dp)
-                .align(Alignment.Start)
+                .padding(top = 40.dp, start = 16.dp)
+                .align(Alignment.TopStart)
         ) {
             Icon(Icons.Default.ArrowBack, contentDescription = "Back")
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Weekly Forecast for $city",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else if (errorMessage != null) {
-            Text(
-                text = errorMessage!!,
-                color = Color.Red,
-                fontSize = 16.sp,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+        // Logo
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 80.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.imagelogo),
+                contentDescription = "SkySync Logo",
+                modifier = Modifier.height(100.dp)
             )
-        } else {
-            weeklyForecast.forEach { dailyWeather ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    elevation = 4.dp
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = dailyWeather.date,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = dailyWeather.weatherDescription,
-                            fontSize = 14.sp,
-                            color = Color.Gray
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Max Temp: ${dailyWeather.maxTemp}°C",
-                            fontSize = 14.sp,
-                            color = Color.Black
-                        )
-                        Text(
-                            text = "Min Temp: ${dailyWeather.minTemp}°C",
-                            fontSize = 14.sp,
-                            color = Color.Black
-                        )
+        }
+
+        // Content Column
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 200.dp, start = 20.dp, end = 20.dp, bottom = 16.dp) // Adjusted padding
+                .verticalScroll(scrollState)  // Makes content scrollable
+                .align(Alignment.TopCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Weekly Forecast for $city",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            when {
+                isLoading -> CircularProgressIndicator()
+
+                errorMessage != null -> Text(
+                    text = errorMessage!!,
+                    color = Color.Red,
+                    fontSize = 16.sp
+                )
+
+                else -> {
+                    weeklyForecast.forEach { dailyWeather ->
+                        Card(
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = dailyWeather.date,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = dailyWeather.weatherDescription,
+                                    fontSize = 14.sp,
+                                    color = Color.Gray
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Max Temp: ${dailyWeather.maxTemp}°C",
+                                    fontSize = 14.sp,
+                                    color = Color.Black
+                                )
+                                Text(
+                                    text = "Min Temp: ${dailyWeather.minTemp}°C",
+                                    fontSize = 14.sp,
+                                    color = Color.Black
+                                )
+                            }
+                        }
                     }
                 }
             }
