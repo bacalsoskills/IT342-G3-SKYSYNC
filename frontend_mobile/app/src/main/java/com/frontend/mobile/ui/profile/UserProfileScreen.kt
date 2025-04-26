@@ -2,25 +2,28 @@ package com.frontend.mobile.ui.profile
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.frontend.mobile.R
 import com.frontend.mobile.api.ApiClient
 import com.frontend.mobile.api.ApiService
 import com.frontend.mobile.model.AuthResponse
@@ -29,6 +32,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(navController: NavController) {
     var user by remember { mutableStateOf<User?>(null) }
@@ -39,6 +43,8 @@ fun UserProfileScreen(navController: NavController) {
     val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     val userId = sharedPreferences.getLong("userId", -1L)
     val token = sharedPreferences.getString("authToken", null)
+
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
         if (userId != -1L && token != null) {
@@ -58,63 +64,67 @@ fun UserProfileScreen(navController: NavController) {
         }
     }
 
-    val gradientBackground = Brush.verticalGradient(
-        colors = listOf(Color(0xFFB2FEFA), Color(0xFF0ED2F7))
-    )
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(gradientBackground),
+            .background(Color(0xFFA7F0F9))
     ) {
-        // Back Arrow
+        // Back Button
         IconButton(
-            onClick = { navController.popBackStack() },  // Corrected: Navigates back on click
+            onClick = { navController.popBackStack() },
             modifier = Modifier
-                .padding(top = 40.dp)  // Increased top padding
-                .padding(start = 16.dp)
+                .padding(top = 40.dp, start = 16.dp)
                 .align(Alignment.TopStart)
         ) {
             Icon(Icons.Default.ArrowBack, contentDescription = "Back")
         }
-
-        // User Profile Content
+        // Logo
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 80.dp)
+                .padding(top = 80.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("User Profile", fontSize = 16.sp, color = Color.DarkGray)
+            Image(
+                painter = painterResource(id = R.drawable.imagelogo),
+                contentDescription = "SkySync Logo",
+                modifier = Modifier.height(100.dp)
+            )
+        }
+
+        // Scrollable Profile Content
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 200.dp, start = 20.dp, end = 20.dp, bottom = 16.dp)
+                .verticalScroll(scrollState)
+                .align(Alignment.TopCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "User Profile",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
 
             user?.let { currentUser ->
-                ProfileTextField(
-                    label = "First Name",
-                    value = currentUser.firstName,
-                    onValueChange = { newValue -> user = currentUser.copy(firstName = newValue) }
-                )
-                ProfileTextField(
-                    label = "Last Name",
-                    value = currentUser.lastName,
-                    onValueChange = { newValue -> user = currentUser.copy(lastName = newValue) }
-                )
-                ProfileTextField(
-                    label = "Email",
-                    value = currentUser.email,
-                    onValueChange = { newValue -> user = currentUser.copy(email = newValue) }
-                )
-                ProfileTextField(
-                    label = "New Password",
-                    value = newPassword,
-                    onValueChange = { newValue -> newPassword = newValue },
-                    isPassword = true
-                )
-                ProfileTextField(
-                    label = "Confirm Password",
-                    value = confirmPassword,
-                    onValueChange = { newValue -> confirmPassword = newValue },
-                    isPassword = true
-                )
+                ProfileTextField("First Name", currentUser.firstName) {
+                    user = currentUser.copy(firstName = it)
+                }
+                ProfileTextField("Last Name", currentUser.lastName) {
+                    user = currentUser.copy(lastName = it)
+                }
+                ProfileTextField("Email", currentUser.email) {
+                    user = currentUser.copy(email = it)
+                }
+                ProfileTextField("New Password", newPassword, isPassword = true) {
+                    newPassword = it
+                }
+                ProfileTextField("Confirm Password", confirmPassword, isPassword = true) {
+                    confirmPassword = it
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -126,28 +136,19 @@ fun UserProfileScreen(navController: NavController) {
                         }
 
                         val updatedUser = user ?: return@Button
-
-                        // Only include password in the update if it was changed
                         val userUpdateRequest = if (newPassword.isNotBlank()) {
                             updatedUser.copy(password = newPassword)
                         } else {
-                            updatedUser.copy(password = null) // Or however your API expects no password change
+                            updatedUser.copy(password = null)
                         }
 
                         apiService.updateUserDetails(userId, "Bearer $token", userUpdateRequest).enqueue(object : Callback<AuthResponse> {
                             override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
                                 if (response.isSuccessful) {
-                                    val authResponse = response.body()
-                                    authResponse?.let {
-                                        // Save the new token in SharedPreferences
-                                        sharedPreferences.edit()
-                                            .putString("authToken", it.token)
-                                            .apply()
-
-                                        Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
-                                        newPassword = ""
-                                        confirmPassword = ""
-                                    }
+                                    sharedPreferences.edit().putString("authToken", response.body()?.token).apply()
+                                    Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+                                    newPassword = ""
+                                    confirmPassword = ""
                                 } else {
                                     Toast.makeText(context, "Failed to update profile", Toast.LENGTH_SHORT).show()
                                 }
@@ -158,10 +159,9 @@ fun UserProfileScreen(navController: NavController) {
                             }
                         })
                     },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF0047FF)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0047FF)),
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
-                        .padding(horizontal = 32.dp)
                         .fillMaxWidth()
                         .height(50.dp)
                 ) {
@@ -176,25 +176,24 @@ fun UserProfileScreen(navController: NavController) {
 fun ProfileTextField(
     label: String,
     value: String,
-    onValueChange: (String) -> Unit,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    onValueChange: (String) -> Unit
 ) {
-    Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)) {
         Text(text = label, fontWeight = FontWeight.Bold, fontSize = 14.sp)
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            leadingIcon = leadingIcon,
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(10.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                backgroundColor = Color.White,
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedBorderColor = Color.LightGray,
                 focusedBorderColor = Color.LightGray,
-                unfocusedBorderColor = Color.LightGray
+                unfocusedContainerColor = Color.White,
+                focusedContainerColor = Color.White
             )
         )
     }
