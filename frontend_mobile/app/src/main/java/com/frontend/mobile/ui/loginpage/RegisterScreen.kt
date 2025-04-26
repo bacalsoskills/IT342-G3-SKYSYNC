@@ -47,6 +47,7 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
     var firstNameError by remember { mutableStateOf(false) }
     var lastNameError by remember { mutableStateOf(false) }
     var confirmPasswordError by remember { mutableStateOf(false) }
+    var emailErrorMessage by remember { mutableStateOf<String?>(null) } // To hold specific email error
 
     // Password visibility toggle
     var passwordVisible by remember { mutableStateOf(false) }
@@ -62,7 +63,7 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
     }
 
     fun isValidEmail(input: String): Boolean {
-        return input.isNotEmpty() && input.contains("@")
+        return input.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()
     }
 
     fun isStrongPassword(input: String): Boolean {
@@ -150,9 +151,10 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                     onValueChange = {
                         email = it
                         emailError = false
+                        emailErrorMessage = null // Clear previous email error
                     },
                     singleLine = true,
-                    isError = emailError,
+                    isError = emailError || emailErrorMessage != null,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
@@ -160,6 +162,9 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                 )
                 if (emailError) {
                     Text("Please enter a valid email", color = Color.Red, fontSize = 12.sp)
+                }
+                if (emailErrorMessage != null) {
+                    Text(emailErrorMessage!!, color = Color.Red, fontSize = 12.sp)
                 }
 
                 Text("Password", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
@@ -227,13 +232,15 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
 
             Button(
                 onClick = {
-                    emailError = !isValidEmail(email)
-                    passwordError = !isStrongPassword(password)
+                    val isEmailValid = isValidEmail(email)
+                    val isPasswordStrong = isStrongPassword(password)
                     firstNameError = firstName.isEmpty()
                     lastNameError = lastName.isEmpty()
+                    emailError = !isEmailValid
+                    passwordError = !isPasswordStrong
                     confirmPasswordError = confirmPassword != password
 
-                    if (!emailError && !passwordError && !firstNameError && !lastNameError && !confirmPasswordError) {
+                    if (!firstNameError && !lastNameError && isEmailValid && isPasswordStrong && !confirmPasswordError) {
                         val user = User(
                             firstName = firstName,
                             lastName = lastName,
@@ -244,13 +251,22 @@ fun RegisterScreen(onBackToLogin: () -> Unit) {
                             override fun onResponse(call: Call<User>, response: Response<User>) {
                                 if (response.isSuccessful) {
                                     showSuccessDialog = true
+                                    emailErrorMessage = null // Clear any previous email error message
                                 } else {
-                                    println("Error: ${response.errorBody()?.string()}")
+                                    val errorBody = response.errorBody()?.string()
+                                    if (errorBody?.contains("already exists", ignoreCase = true) == true) {
+                                        emailError = true
+                                        emailErrorMessage = "This email address is already in use."
+                                    } else {
+                                        println("Registration Error: ${response.code()} - $errorBody")
+                                        // Optionally show a generic error message to the user
+                                    }
                                 }
                             }
 
                             override fun onFailure(call: Call<User>, t: Throwable) {
-                                println("Failure: ${t.message}")
+                                println("Registration Failure: ${t.message}")
+                                // Optionally show a network error message to the user
                             }
                         })
                     }
