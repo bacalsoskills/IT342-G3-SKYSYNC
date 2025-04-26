@@ -2,8 +2,11 @@ package com.example.wanderways.ui.pages
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -14,12 +17,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 import com.frontend.mobile.api.ApiClient
 import com.frontend.mobile.api.ApiService
 import com.frontend.mobile.model.NotificationDTO
+import com.frontend.mobile.R // Import your R file for resources
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -34,6 +41,8 @@ fun NotificationPage(
     val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     val apiService = ApiClient.getClient().create(ApiService::class.java)
     var notifications by remember { mutableStateOf<List<String>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     // Fetch notifications
     LaunchedEffect(Unit) {
@@ -46,90 +55,118 @@ fun NotificationPage(
                     response: Response<List<NotificationDTO>>
                 ) {
                     if (response.isSuccessful) {
-                        // Sort notifications by ID in descending order and extract messages
                         notifications = response.body()?.sortedByDescending { it.id }?.map { it.message } ?: emptyList()
+                        isLoading = false
                     } else {
-                        Toast.makeText(context, "Failed to fetch notifications", Toast.LENGTH_SHORT).show()
+                        errorMessage = "Failed to fetch notifications: ${response.errorBody()?.string() ?: "Unknown error"}"
+                        isLoading = false
                     }
                 }
 
                 override fun onFailure(call: Call<List<NotificationDTO>>, t: Throwable) {
-                    Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                    errorMessage = "Error: ${t.message}"
+                    isLoading = false
                 }
             })
+        } else {
+            errorMessage = "User ID or token not found"
+            isLoading = false
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Notifications") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        // TODO: Clear all logic
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.ClearAll,
-                            contentDescription = "Clear All"
-                        )
-                    }
-                }
-            )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFA7F0F9))
+    ) {
+        // Back Button
+        IconButton(
+            onClick = onBackClick,
+            modifier = Modifier
+                .padding(top = 40.dp, start = 16.dp)
+                .align(Alignment.TopStart)
+        ) {
+            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
         }
-    ) { padding ->
+        // Logo
         Column(
             modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .fillMaxWidth()
+                .padding(top = 80.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            notifications.forEach { message ->
+            Image(
+                painter = painterResource(id = R.drawable.imagelogo),
+                contentDescription = "Your App Logo", // Update content description
+                modifier = Modifier.height(100.dp)
+            )
+        }
+
+        // Notifications List
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 200.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
+                .align(Alignment.TopCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
-                    text = message,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(4.dp)
+                    text = "Notifications",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
+                IconButton(onClick = {
+                    // TODO: Clear all logic
+                    Toast.makeText(context, "Clear All Clicked", Toast.LENGTH_SHORT).show() // Placeholder
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.ClearAll,
+                        contentDescription = "Clear All"
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (isLoading) {
+                CircularProgressIndicator()
+            } else if (errorMessage != null) {
+                Text(errorMessage!!, color = Color.Red, fontSize = 16.sp)
+            } else if (notifications.isEmpty()) {
+                Text("No notifications found.", fontSize = 16.sp)
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(notifications) { message ->
+                        NotificationCard(message = message)
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun NotificationList(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        NotificationCard(title = "New Message", description = "You have a new message in your inbox")
-        NotificationCard(title = "Upcoming Trip", description = "Your trip to Paris is coming up soon")
-        NotificationCard(title = "Payment Successful", description = "Your payment for the booking was successful")
-    }
-}
-
-@Composable
-fun NotificationCard(title: String, description: String) {
+fun NotificationCard(message: String) {
     Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F0F0)),
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight()
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp), // Use CardDefaults for elevation
+        shape = MaterialTheme.shapes.medium
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = title, style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = description, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = message,
+                fontSize = 16.sp,
+                color = Color.Black
+            )
         }
     }
 }
