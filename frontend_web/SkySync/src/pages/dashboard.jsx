@@ -61,20 +61,27 @@ const Dashboard = () => {
 
   const fetchWeatherData = async (cityName) => {
     if (!cityName.trim()) {
-      setError("Please enter a city name");
+      setError("Please enter a city name"); // Display error for empty input
       return;
     }
 
     setWeatherLoading(true);
-    setError(null);
+    setError(null); // Clear any previous errors
 
     try {
       const data = await getTodaysWeatherByCity(cityName);
-      setWeatherData(data);
-      await fetchWardrobeData(cityName);
+      if (data) {
+        setWeatherData(data);
+        setError(null); // Clear error if weather data is successfully fetched
+        await fetchWardrobeData(cityName); // Fetch wardrobe data based on the weather
+      } else {
+        setWeatherData(null); // Clear previous weather data
+        setError("City not found. Please check the spelling or try another city."); // Display error for incorrect city
+      }
     } catch (err) {
       console.error("Error fetching weather data:", err);
-      setError("Failed to fetch weather data. Please try again.");
+      setWeatherData(null); // Clear previous weather data
+      setError("City not found. Please check the spelling or try another city."); // Handle incorrect city
     } finally {
       setWeatherLoading(false);
     }
@@ -94,24 +101,18 @@ const Dashboard = () => {
   };
 
   const fetchActivityData = async (cityName) => {
-    if (!cityName.trim()) {
-      setError("Please enter a city name"); // Display error for empty input
-      return;
-    }
-
     setActivityLoading(true);
-    setError(null);
 
     try {
       const data = await getActivityRecommendationsByCity(cityName);
       if (data && data.length > 0) {
         setActivityData(data);
       } else {
-        setError("City not found. Please check the spelling or try another city."); // Display error for incorrect city
+        setActivityData([]); // Clear previous activity data
       }
     } catch (err) {
       console.error("Error fetching activity recommendations:", err);
-      setError("City not found. Please check the spelling or try another city."); // Handle incorrect city
+      setActivityData([]); // Clear previous activity data
     } finally {
       setActivityLoading(false);
     }
@@ -169,8 +170,8 @@ const Dashboard = () => {
                   value={city}
                   onChange={(e) => handleCityChange(e.target.value)}
                   onSearch={() => {
-                    fetchWeatherData(city);
-                    fetchActivityData(city);
+                    fetchWeatherData(city); // Fetch weather data and handle errors for the input field
+                    fetchActivityData(city); // Fetch activity data independently
                   }}
                   loading={weatherLoading}
                 />

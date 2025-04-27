@@ -43,41 +43,4 @@ public class SkysyncApplication {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public JobDetail dailyWeatherNotificationJobDetail() {
-        return JobBuilder.newJob(DailyWeatherNotificationService.class)
-                .withIdentity("dailyWeatherNotificationJob")
-                .storeDurably()
-                .build();
-    }
-
-    @Bean
-    public Trigger dailyWeatherNotificationTrigger(JobDetail dailyWeatherNotificationJobDetail) {
-        return TriggerBuilder.newTrigger()
-                .forJob(dailyWeatherNotificationJobDetail)
-                .withIdentity("dailyWeatherNotificationTrigger")
-                .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(00, 00))
-                .build();
-    }
-
-    @Bean
-    public Scheduler startScheduler(SchedulerFactoryBean schedulerFactoryBean, JobDetail dailyWeatherNotificationJobDetail, Trigger dailyWeatherNotificationTrigger) throws Exception {
-        Scheduler scheduler = schedulerFactoryBean.getScheduler();
-
-        // Register the JobDetail and Trigger with the scheduler
-        if (!scheduler.checkExists(dailyWeatherNotificationJobDetail.getKey())) {
-            scheduler.addJob(dailyWeatherNotificationJobDetail, true);
-        }
-        if (!scheduler.checkExists(dailyWeatherNotificationTrigger.getKey())) {
-            scheduler.scheduleJob(dailyWeatherNotificationTrigger);
-        }
-
-        scheduler.start(); // Explicitly start the scheduler
-
-        System.out.println("Scheduler MetaData: " + scheduler.getMetaData());
-        System.out.println("Registered Jobs: " + scheduler.getJobKeys(GroupMatcher.anyGroup()));
-        System.out.println("Registered Triggers: " + scheduler.getTriggerKeys(GroupMatcher.anyGroup()));
-
-        return scheduler;
-    }
 }
