@@ -32,18 +32,18 @@ interface ApiService {
         @Body updatedUser: User
     ): Call<AuthResponse>
 
-    @GET("weather/todayByCity")
+    @GET("api/weather/todayByCity")
     fun getTodaysWeatherByCity(
         @Query("city") city: String,
         @Header("Authorization") token: String
     ): Call<DailyWeatherDTO>
 
-    @GET("weather/weeklyByCity")
+    @GET("api/weather/weeklyByCity")
     fun getWeeklyWeatherByCity(
         @Query("city") city: String
     ): Call<List<DailyWeatherDTO>>
 
-    @GET("wardrobe/todayByCity")
+    @GET("api/wardrobe/todayByCity")
     fun getTodayWardrobeByCity(
         @Query("city") city: String,
         @Header("Authorization") token: String

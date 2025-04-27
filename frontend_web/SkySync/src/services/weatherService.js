@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_BASE_URL } from "./config";
 
-const API_URL = `${API_BASE_URL}/weather`;
+const API_URL = `${API_BASE_URL}/api/weather`;
 
 export const getTodaysWeatherByCity = async (city) => {
   try {
