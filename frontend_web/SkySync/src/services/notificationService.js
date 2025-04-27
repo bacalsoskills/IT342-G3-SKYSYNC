@@ -1,17 +1,17 @@
 import axios from "axios";
+import { API_BASE_URL } from "./config";
 
-const API_BASE_URL = "http://localhost:8080/api/notifications"; // Replace with your backend URL
+const API_URL = `${API_BASE_URL}/api/notifications`;
 
-// Fetch notifications for a specific user
 export const getUserNotifications = async (userId) => {
   try {
     const authToken = localStorage.getItem("authToken");
-    const response = await axios.get(`${API_BASE_URL}/user/${userId}`, {
+    const response = await axios.get(`${API_URL}/user/${userId}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },
     });
-    return response.data.sort((a, b) => b.id - a.id); // Sort notifications by ID (descending)
+    return response.data.sort((a, b) => b.id - a.id);
   } catch (error) {
     console.error("Error fetching user notifications:", error);
     throw error;
@@ -21,7 +21,7 @@ export const getUserNotifications = async (userId) => {
 export const getUnreadNotifications = async (userId) => {
   try {
     const authToken = localStorage.getItem("authToken");
-    const response = await axios.get(`${API_BASE_URL}/user/${userId}/unread`, {
+    const response = await axios.get(`${API_URL}/user/${userId}/unread`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },
@@ -37,7 +37,7 @@ export const getUnreadNotifications = async (userId) => {
 export const deleteNotificationById = async (notificationId) => {
   try {
     const authToken = localStorage.getItem("authToken");
-    await axios.delete(`${API_BASE_URL}/${notificationId}`, {
+    await axios.delete(`${API_URL}/${notificationId}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },
@@ -51,7 +51,7 @@ export const deleteNotificationById = async (notificationId) => {
 export const markNotificationAsRead = async (notificationId) => {
   try {
     const authToken = localStorage.getItem("authToken");
-    await axios.patch(`${API_BASE_URL}/${notificationId}/mark-as-read`, null, {
+    await axios.patch(`${API_URL}/${notificationId}/mark-as-read`, null, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },

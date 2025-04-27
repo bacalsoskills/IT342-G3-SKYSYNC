@@ -6,7 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
-    private const val BASE_URL = "http://10.0.2.2:8080" // Backend base URL
+    private const val BASE_URL = "http://16.176.13.216:8080" // Updated backend base URL
 
     private val retrofit: Retrofit by lazy {
         // Create a logging interceptor

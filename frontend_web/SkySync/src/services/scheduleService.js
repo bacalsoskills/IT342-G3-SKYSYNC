@@ -1,6 +1,7 @@
 import axios from "axios";
+import { API_BASE_URL } from "./config";
 
-const API_URL = "http://localhost:8080/api/schedules";
+const API_URL = `${API_BASE_URL}/api/schedules`;
 
 export const scheduleActivity = async (userId, activityId, startTime, endTime) => {
   try {

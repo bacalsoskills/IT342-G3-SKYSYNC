@@ -1,14 +1,15 @@
 import axios from "axios";
+import { API_BASE_URL } from "./config";
 
-const API_URL = "http://localhost:8080/api/activities";
+const API_URL = `${API_BASE_URL}/api/activities`;
 
 export const getActivityRecommendationsByCity = async (city) => {
   try {
-    const authToken = localStorage.getItem("authToken"); // Retrieve the token from localStorage
+    const authToken = localStorage.getItem("authToken");
     const response = await axios.get(`${API_URL}/recommendationsByCity`, {
       params: { city },
       headers: {
-        Authorization: `Bearer ${authToken}`, // Include the token in the Authorization header
+        Authorization: `Bearer ${authToken}`,
       },
     });
     return response.data;
