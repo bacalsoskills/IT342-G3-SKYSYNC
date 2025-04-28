@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { List, Spin, Button } from "antd";
-import { getUserNotifications, deleteNotificationById } from "../services/notificationService";
+import { getUserNotifications } from "../services/notificationService";
 import { useNavigate } from "react-router-dom";
 import UserHeader from "../components/userHeader";
 
@@ -29,23 +29,12 @@ const NotificationPage = () => {
     }
   };
 
-  const handleDeleteNotification = async (notificationId) => {
-    try {
-      await deleteNotificationById(notificationId);
-      setNotifications((prevNotifications) =>
-        prevNotifications.filter((notification) => notification.id !== notificationId)
-      );
-    } catch (error) {
-      console.error("Failed to delete notification:", error);
-    }
-  };
-
   return (
     <div>
       <UserHeader />
       <div
-        className="container-fluid"
-        style={{ minHeight: "100vh", background: "#fff", paddingTop: "24px" }}
+        className="u-fixed-background container-fluid"
+        style={{ minHeight: "92.5vh", paddingTop: "24px" }}
       >
         <div className="row justify-content-center">
           <div className="col-12 col-md-10 col-lg-8">
@@ -60,7 +49,7 @@ const NotificationPage = () => {
                 <Spin size="large" />
               </div>
             ) : notifications.length > 0 ? (
-              <List
+              <List className="bg-white"
                 bordered
                 dataSource={notifications}
                 renderItem={(notification) => (

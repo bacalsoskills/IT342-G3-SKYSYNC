@@ -8,7 +8,7 @@ const Activities = () => {
   return (
     <>
       <Header />
-      <section className="d-flex justify-content-center align-items-center u-section-1 py-5">
+      <section className="u-fixed-background d-flex justify-content-center align-items-center u-section-1 py-5">
         <div className="align-items-center container">
           <div className="row align-items-center">
             {/* Left: Image */}
