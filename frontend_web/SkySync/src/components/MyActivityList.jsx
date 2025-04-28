@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Spin, Alert, List, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 
-const MyActivityList = ({ activities, loading, error }) => {
+const MyActivityList = ({ activities, loading, error, onViewDetails }) => {
   const navigate = useNavigate();
 
   return (
@@ -24,7 +24,7 @@ const MyActivityList = ({ activities, loading, error }) => {
           dataSource={activities}
           renderItem={(activity) => (
             <List.Item>
-              <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+              <div style={{ display: "flex",alignItems:"center", justifyContent: "space-between", width: "100%" }}>
                 <div>
                   <strong>{activity.name}</strong>
                   <div style={{ color: "#666", marginTop: "4px" }}>
@@ -33,7 +33,7 @@ const MyActivityList = ({ activities, loading, error }) => {
                 </div>
                 <Button
                   type="primary"
-                  onClick={() => navigate(`/activitydetails`, { state: { activity } })}
+                  onClick={() => onViewDetails(activity)}
                 >
                   View Details
                 </Button>

@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Card, Spin, Alert, List, Button } from "antd";
+import { Button, Spin, Alert } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getUserActivities } from "../services/activityService";
 import UserHeader from "../components/userHeader";
 import MyActivityList from "../components/MyActivityList";
+import ActivityDetailsModal from "../components/ActivityDetailsModal";
 
 const MyActivity = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedActivity, setSelectedActivity] = useState(null); // Track selected activity
+  const [isModalVisible, setIsModalVisible] = useState(false); // Track modal visibility
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
 
@@ -31,6 +34,16 @@ const MyActivity = () => {
     fetchUserActivities();
   }, [userId]);
 
+  const handleViewDetails = (activity) => {
+    setSelectedActivity(activity);
+    setIsModalVisible(true); // Open the modal
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false); // Close the modal
+    setSelectedActivity(null);
+  };
+
   return (
     <div>
       <UserHeader />
@@ -43,10 +56,26 @@ const MyActivity = () => {
               </Button>
             </div>
             <h2 className="mb-3">My Activities</h2>
-            <MyActivityList activities={activities} loading={loading} error={error} />
+            {loading ? (
+              <Spin size="large" />
+            ) : error ? (
+              <Alert message={error} type="error" showIcon />
+            ) : (
+              <MyActivityList
+                activities={activities}
+                onViewDetails={handleViewDetails} // Pass the handler to the list
+              />
+            )}
           </div>
         </div>
       </div>
+      {selectedActivity && (
+        <ActivityDetailsModal
+          visible={isModalVisible}
+          onClose={handleCloseModal}
+          activity={selectedActivity}
+        />
+      )}
     </div>
   );
 };
