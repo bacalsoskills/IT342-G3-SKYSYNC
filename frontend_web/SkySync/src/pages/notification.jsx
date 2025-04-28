@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { List, Spin, Button } from "antd";
-import { getUserNotifications } from "../services/notificationService";
+import { List, Spin, Button, message } from "antd";
+import { getUserNotifications, deleteNotificationById } from "../services/notificationService";
 import { useNavigate } from "react-router-dom";
 import UserHeader from "../components/userHeader";
 
@@ -29,6 +29,19 @@ const NotificationPage = () => {
     }
   };
 
+  const handleDeleteNotification = async (notificationId) => {
+    try {
+      await deleteNotificationById(notificationId); // Call the service to delete the notification
+      message.success("Notification deleted successfully.");
+      setNotifications((prevNotifications) =>
+        prevNotifications.filter((notification) => notification.id !== notificationId)
+      ); // Remove the deleted notification from the state
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
+      message.error("Failed to delete notification.");
+    }
+  };
+
   return (
     <div>
       <UserHeader />
@@ -49,7 +62,8 @@ const NotificationPage = () => {
                 <Spin size="large" />
               </div>
             ) : notifications.length > 0 ? (
-              <List className="bg-white"
+              <List
+                className="bg-white"
                 bordered
                 dataSource={notifications}
                 renderItem={(notification) => (
@@ -66,7 +80,11 @@ const NotificationPage = () => {
                     ]}
                   >
                     <div>
-                      <strong style={{ textDecoration: notification.isRead ? "line-through" : "none" }}>
+                      <strong
+                        style={{
+                          textDecoration: notification.isRead ? "line-through" : "none",
+                        }}
+                      >
                         {notification.message}
                       </strong>
                     </div>
