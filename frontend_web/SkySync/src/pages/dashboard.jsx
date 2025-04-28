@@ -71,15 +71,24 @@ const Dashboard = () => {
 
     try {
       const data = await getTodaysWeatherByCity(cityName);
-      setWeatherData(data);
-      await fetchWardrobeData(cityName);
+      if (data) {
+        setWeatherData(data);
+        setError(null); // Clear error if weather data is successfully fetched
+        await fetchWardrobeData(cityName); // Fetch wardrobe data based on the weather
+      } else {
+        setWeatherData(null); // Clear previous weather data
+        setError("City not found. Please check the spelling or try another city."); // Display error for incorrect city
+      }
     } catch (err) {
       console.error("Error fetching weather data:", err);
-      setError("Failed to fetch weather data. Please try again.");
+      setWeatherData(null); // Clear previous weather data
+      setError("City not found. Please check the spelling or try another city."); // Handle incorrect city
     } finally {
       setWeatherLoading(false);
     }
   };
+
+
 
   const fetchWardrobeData = async (cityName) => {
     setWardrobeLoading(true);

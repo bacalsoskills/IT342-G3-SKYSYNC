@@ -213,6 +213,14 @@ const UserHeader = () => {
                   Activity
                 </a>
               </li>
+              <li className="nav-item">
+                <a
+                  href="/myactivity"
+                  className={`nav-link userheader-nav-link${window.location.pathname === "/myactivity" ? " active" : ""}`}
+                >
+                  My Activity
+                </a>
+              </li>
             </ul>
           </div>
 

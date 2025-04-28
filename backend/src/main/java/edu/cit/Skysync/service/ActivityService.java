@@ -7,9 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.cit.Skysync.entity.ActivityEntity;
+import edu.cit.Skysync.entity.NotificationEntity;
 import edu.cit.Skysync.entity.RecommendedActivityEntity;
+import edu.cit.Skysync.entity.ScheduleEntity;
 import edu.cit.Skysync.entity.UserEntity;
 import edu.cit.Skysync.repository.ActivityRepository;
+import edu.cit.Skysync.repository.NotificationRepository;
 import edu.cit.Skysync.repository.RecommendedActivityRepository;
 import edu.cit.Skysync.repository.ScheduleRepository; // Import ScheduleRepository
 
@@ -18,13 +21,15 @@ public class ActivityService {
     private final ActivityRepository activityRepository;
     private final RecommendedActivityRepository recommendedActivityRepository;
     private final ScheduleRepository scheduleRepository;
+    private final NotificationRepository notificationRepository;
 
     public ActivityService(ActivityRepository activityRepository, 
                            RecommendedActivityRepository recommendedActivityRepository,
-                           ScheduleRepository scheduleRepository) {
+                           ScheduleRepository scheduleRepository, NotificationRepository notificationRepository) {
         this.activityRepository = activityRepository;
         this.recommendedActivityRepository = recommendedActivityRepository;
         this.scheduleRepository = scheduleRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     public List<RecommendedActivityEntity> getRecommendedActivities(String weatherCondition) {
@@ -75,10 +80,22 @@ public class ActivityService {
                 .collect(Collectors.toList());
     }*/
 
-    @Transactional // Ensure this method runs within a transaction
+    @Transactional
     public boolean deleteActivityById(Long activityId) {
         if (activityRepository.existsById(activityId)) {
-            // Delete associated schedules first
+            // Unlink notifications from schedules
+            List<ScheduleEntity> schedules = scheduleRepository.findByActivity_ActivityId(activityId)
+                .map(List::of)
+                .orElseGet(List::of);
+            for (ScheduleEntity schedule : schedules) {
+                List<NotificationEntity> notifications = notificationRepository.findBySchedule_ScheduleId(schedule.getScheduleId());
+                for (NotificationEntity notification : notifications) {
+                    notification.setSchedule(null); // Unlink the schedule
+                    notificationRepository.save(notification); // Save the updated notification
+                }
+            }
+
+            // Delete associated schedules
             scheduleRepository.deleteByActivity_ActivityId(activityId);
 
             // Then delete the activity
