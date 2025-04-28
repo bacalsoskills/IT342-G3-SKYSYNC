@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Card, Spin, Alert, List, Button, message } from "antd";
 import { getActivityRecommendationsByCity, saveActivityForUser } from "../services/activityService";
 import { useNavigate } from "react-router-dom";
+import UserHeader from "../components/userHeader";
 
 const RecommendedActivity = () => {
   const [city, setCity] = useState(() => {
@@ -45,56 +46,66 @@ const RecommendedActivity = () => {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+    <div className="min-vh-100 u-fixed-background">
+      <UserHeader />
+    <div className="container" style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <Button type="default" onClick={() => navigate("/dashboard")} style={{ marginBottom: "20px" }}>
         Back to Dashboard
       </Button>
       <h2>All Recommended Activities for {city}</h2>
-      <Card
-        style={{
-          padding: "20px",
-          borderRadius: "8px",
-        }}
-      >
+      <div className="row">
         {loading ? (
-          <div style={{ textAlign: "center", padding: "20px" }}>
+          <div className="col-12" style={{ textAlign: "center", padding: "20px" }}>
             <Spin size="large" />
           </div>
         ) : error ? (
-          <Alert
-            message={error}
-            type="error"
-            showIcon
-            style={{ marginBottom: "16px" }}
-          />
+          <div className="col-12">
+            <Alert
+              message={error}
+              type="error"
+              showIcon
+              style={{ marginBottom: "16px" }}
+            />
+          </div>
         ) : activityData && activityData.length > 0 ? (
-          <List
-            header={<strong>Recommended Activities:</strong>}
-            bordered
-            dataSource={activityData}
-            renderItem={(activity) => (
-              <List.Item>
-                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                  <div>
-                    <strong>{activity.name}</strong>
-                    <div style={{ color: "#666", marginTop: "4px" }}>
-                      {activity.description}
-                    </div>
+          activityData.map((activity, idx) => (
+            <div className="col-12 col-md-6 col-lg-4 mb-4 d-flex" key={idx}>
+              <Card
+                style={{
+                  padding: "20px",
+                  borderRadius: "8px",
+                  height: "100%",
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center", // Center content horizontally
+                  textAlign: "center",  // Center text inside the card
+                }}
+              >
+                <div>
+                  <strong>{activity.name}</strong>
+                  <div style={{ color: "#666", marginTop: "4px" }}>
+                    {activity.description}
                   </div>
-                  <Button
-                    type="primary"
-                    onClick={() => handleAddActivity(activity)}
-                  >
-                    Add Activity
-                  </Button>
                 </div>
-              </List.Item>
-            )}
-          />
+                <Button
+                  type="primary"
+                  onClick={() => handleAddActivity(activity)}
+                  style={{ marginTop: "16px" }}
+                >
+                  Add Activity
+                </Button>
+              </Card>
+            </div>
+          ))
         ) : (
-          <p>No activity recommendations available for this city.</p>
+          <div className="col-12">
+            <p>No activity recommendations available for this city.</p>
+          </div>
         )}
-      </Card>
+      </div>
+    </div>
     </div>
   );
 };

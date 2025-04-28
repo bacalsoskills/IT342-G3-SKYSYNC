@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday";
 import { useNavigate } from "react-router-dom";
 import UserHeader from "../components/userHeader";
+import TimeCard from "../components/TimeCard";
 
 dayjs.extend(weekday);
 
@@ -61,27 +62,20 @@ const Dashboard = () => {
 
   const fetchWeatherData = async (cityName) => {
     if (!cityName.trim()) {
-      setError("Please enter a city name"); // Display error for empty input
+      setError("Please enter a city name");
       return;
     }
 
     setWeatherLoading(true);
-    setError(null); // Clear any previous errors
+    setError(null);
 
     try {
       const data = await getTodaysWeatherByCity(cityName);
-      if (data) {
-        setWeatherData(data);
-        setError(null); // Clear error if weather data is successfully fetched
-        await fetchWardrobeData(cityName); // Fetch wardrobe data based on the weather
-      } else {
-        setWeatherData(null); // Clear previous weather data
-        setError("City not found. Please check the spelling or try another city."); // Display error for incorrect city
-      }
+      setWeatherData(data);
+      await fetchWardrobeData(cityName);
     } catch (err) {
       console.error("Error fetching weather data:", err);
-      setWeatherData(null); // Clear previous weather data
-      setError("City not found. Please check the spelling or try another city."); // Handle incorrect city
+      setError("Failed to fetch weather data. Please try again.");
     } finally {
       setWeatherLoading(false);
     }
@@ -102,17 +96,12 @@ const Dashboard = () => {
 
   const fetchActivityData = async (cityName) => {
     setActivityLoading(true);
-
     try {
       const data = await getActivityRecommendationsByCity(cityName);
-      if (data && data.length > 0) {
-        setActivityData(data);
-      } else {
-        setActivityData([]); // Clear previous activity data
-      }
+      setActivityData(data);
     } catch (err) {
       console.error("Error fetching activity recommendations:", err);
-      setActivityData([]); // Clear previous activity data
+      setError("Failed to fetch activity recommendations");
     } finally {
       setActivityLoading(false);
     }
@@ -151,17 +140,37 @@ const Dashboard = () => {
   };
 
   return (
-    <div>
-      {/* Top Bar */}
+    <div className="min-vh-100">
       <UserHeader />
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+    <div className="u-fixed-background" style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       {/* Main Content */}
       <div className="container mt-4">
+        <div className="col-12 col-md-6 mb-4 d-flex align-items-center gap-3">
+          <TimeCard city={city} />
+          {weatherData && (
+  <Card
+    className="d-flex flex-column align-items-center justify-content-center text-center text-white shadow rounded-3"
+    style={{
+      maxWidth: "300px",
+      height: "181px",
+      backgroundColor: "#1E3A8A", // Custom dark blue
+      fontSize: "36px",
+      fontWeight: "bold",
+    }}
+  >
+    <h3 className="fw-bold m-0 p-0 fs-4">TEMPERATURE</h3>
+    <span className="fs-4 fw-normal">
+      {weatherData.minTemp}°C - {weatherData.maxTemp}°C
+    </span>
+  </Card>
+)}
+
+        </div>
         <div className="row">
           {/* Weather Forecast Section */}
           <div className="col-12 col-md-6 mb-4">
             <h2>Weather Forecast</h2>
-            <Card style={{ padding: "20px", borderRadius: "8px" }}>
+            <Card className="card-db" style={{ padding: "20px", borderRadius: "8px" }}>
               <div style={{ marginBottom: "16px" }}>
                 <Input.Search
                   placeholder="Enter city name"
@@ -170,8 +179,8 @@ const Dashboard = () => {
                   value={city}
                   onChange={(e) => handleCityChange(e.target.value)}
                   onSearch={() => {
-                    fetchWeatherData(city); // Fetch weather data and handle errors for the input field
-                    fetchActivityData(city); // Fetch activity data independently
+                    fetchWeatherData(city);
+                    fetchActivityData(city);
                   }}
                   loading={weatherLoading}
                 />
@@ -228,7 +237,7 @@ const Dashboard = () => {
           {/* Recommended Wardrobe Section */}
           <div className="col-12 col-md-6 mb-4">
             <h2>Recommended Wardrobe</h2>
-            <Card style={{ padding: "20px", borderRadius: "8px" }}>
+            <Card className="card-db" style={{ padding: "20px", borderRadius: "8px" }}>
               {wardrobeLoading ? (
                 <div style={{ textAlign: "center" }}>
                   <Spin />
@@ -241,7 +250,7 @@ const Dashboard = () => {
                   >
                     {wardrobeData[0].theme}
                   </Tag>
-                  <List
+                  <List className="card-db"
                     header={<strong>Recommended Items:</strong>}
                     bordered
                     dataSource={wardrobeData[0].clothingItems.map((item, index) => ({
@@ -250,10 +259,10 @@ const Dashboard = () => {
                     }))}
                     renderItem={({ item, description }) => (
                       <List.Item>
-                        <div>
+                        <div className="text-white">
                           <span style={{ marginRight: "8px" }}>•</span>
                           <strong>{item}</strong>
-                          <div style={{ color: "#666", marginTop: "4px" }}>
+                          <div className="text-white" style={{ color: "#666", marginTop: "4px" }}>
                             {description}
                           </div>
                         </div>
@@ -279,22 +288,22 @@ const Dashboard = () => {
           {/* Recommended Activities Section */}
           <div className="col-12">
             <h2>Recommended Activities</h2>
-            <Card style={{ padding: "20px", borderRadius: "8px" }}>
+            <Card className="card-db" style={{ padding: "20px", borderRadius: "8px" }}>
               {activityLoading ? (
                 <div style={{ textAlign: "center" }}>
                   <Spin />
                 </div>
               ) : activityData && activityData.length > 0 ? (
                 <div>
-                  <List
+                  <List className="text-white"
                     header={<strong>Recommended Activities:</strong>}
                     bordered
                     dataSource={activityData.slice(0, 3)}
                     renderItem={(activity) => (
-                      <List.Item>
+                      <List.Item className="text-white">
                         <div>
                           <strong>{activity.name}</strong>
-                          <div style={{ color: "#666", marginTop: "4px" }}>
+                          <div className="text-white" style={{ color: "#666", marginTop: "4px" }}>
                             {activity.description}
                           </div>
                         </div>

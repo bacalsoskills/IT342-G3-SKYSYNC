@@ -178,19 +178,42 @@ const UserHeader = () => {
             <img className="img-fluid hover-enlarge" src={Logo} alt="Logo" height="36" />
           </a>
 
-          {/* My Activities Link (Centered) */}
+          {/* Navigation List (Centered) */}
           <div className="d-none d-md-block" style={{ flex: 1, textAlign: "center" }}>
-            <a
-              href="/myactivity"
-              style={{
-                color: "#1890ff",
-                fontWeight: "500",
-                textDecoration: "none",
-                fontSize: "16px",
-              }}
-            >
-              My Activities
-            </a>
+            <ul className="nav justify-content-center userheader-nav-list">
+              <li className="nav-item">
+                <a
+                  href="/dashboard"
+                  className={`nav-link userheader-nav-link${window.location.pathname === "/dashboard" ? " active" : ""}`}
+                >
+                  Home
+                </a>
+              </li>
+              <li className="nav-item">
+                <a
+                  href="/weeklyforecast"
+                  className={`nav-link userheader-nav-link${window.location.pathname === "/weeklyforecast" ? " active" : ""}`}
+                >
+                  Weather
+                </a>
+              </li>
+              <li className="nav-item">
+                <a
+                  href="/recommendedwardrobe"
+                  className={`nav-link userheader-nav-link${window.location.pathname === "/recommendedwardrobe" ? " active" : ""}`}
+                >
+                  Wardrobe
+                </a>
+              </li>
+              <li className="nav-item">
+                <a
+                  href="/recommendedactivity"
+                  className={`nav-link userheader-nav-link${window.location.pathname === "/recommendedactivity" ? " active" : ""}`}
+                >
+                  Activity
+                </a>
+              </li>
+            </ul>
           </div>
 
           {/* Hamburger Menu for Smaller Screens */}
@@ -235,8 +258,63 @@ const UserHeader = () => {
         <Menu
           items={[
             {
-              key: "my-activities",
-              label: <div onClick={() => navigate("/myactivity")}>My Activities</div>,
+              key: "home",
+              label: (
+                <div
+                  className={`userheader-nav-link${window.location.pathname === "/dashboard" ? " active" : ""}`}
+                  onClick={() => {
+                    setDrawerVisible(false);
+                    navigate("/dashboard");
+                  }}
+                >
+                  Home
+                </div>
+              ),
+            },
+            {
+              key: "weather",
+              label: (
+                <div
+                  className={`userheader-nav-link${window.location.pathname === "/weeklyforecast" ? " active" : ""}`}
+                  onClick={() => {
+                    setDrawerVisible(false);
+                    navigate("/weeklyforecast");
+                  }}
+                >
+                  Weather
+                </div>
+              ),
+            },
+            {
+              key: "wardrobe",
+              label: (
+                <div
+                  className={`userheader-nav-link${window.location.pathname === "/recommendedwardrobe" ? " active" : ""}`}
+                  onClick={() => {
+                    setDrawerVisible(false);
+                    navigate("/recommendedwardrobe");
+                  }}
+                >
+                  Wardrobe
+                </div>
+              ),
+            },
+            {
+              key: "activity",
+              label: (
+                <div
+                  className={`userheader-nav-link${window.location.pathname === "/recommendedactivity" ? " active" : ""}`}
+                  onClick={() => {
+                    setDrawerVisible(false);
+                    navigate("/recommendedactivity");
+                  }}
+                >
+                  Activity
+                </div>
+              ),
+            },
+            {
+              type: "divider",
             },
             {
               key: "profile",
