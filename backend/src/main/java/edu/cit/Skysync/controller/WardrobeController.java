@@ -15,7 +15,7 @@ import edu.cit.Skysync.service.WeatherService;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/wardrobe")
+@RequestMapping("/api/wardrobe")
 public class WardrobeController {
 
     private final WardrobeService wardrobeService;

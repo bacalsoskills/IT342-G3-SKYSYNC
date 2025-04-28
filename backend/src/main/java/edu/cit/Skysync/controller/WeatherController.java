@@ -5,20 +5,20 @@ import java.util.List;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
 import edu.cit.Skysync.dto.DailyWeatherDTO;
 import edu.cit.Skysync.service.WeatherService;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/weather")
+@RequestMapping("/api/weather")
 public class WeatherController {
     private static final Logger logger = LoggerFactory.getLogger(WeatherController.class);
     private final WeatherService weatherService;
