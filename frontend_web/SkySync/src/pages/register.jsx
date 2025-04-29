@@ -19,11 +19,12 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
     if (password !== confirmPassword) {
-      setPasswordError(true); // Trigger error state
+      setPasswordError(true);
       return;
     }
-    setPasswordError(false); // Reset error if passwords match
+    setPasswordError(false);
     try {
       const user = { firstName, lastName, email, password };
       await registerUser(user);
@@ -39,7 +40,22 @@ const Register = () => {
         }
       }, 1000);
     } catch (err) {
-      setError(err.message);
+      // Check for email already used error (customize this based on your backend's error response)
+      if (
+        err.response &&
+        err.response.data &&
+        typeof err.response.data.message === "string" &&
+        err.response.data.message.toLowerCase().includes("email")
+      ) {
+        setError("Email is already used for registration.");
+      } else if (
+        err.message &&
+        err.message.toLowerCase().includes("email")
+      ) {
+        setError("Email is already used for registration.");
+      } else {
+        setError("Email is already used for registration.");
+      }
     }
   };
 
@@ -103,6 +119,11 @@ const Register = () => {
                   <h4 className="m-auto u-align-center u-custom-font u-font-montserrat u-text u-text-default u-text-1">
                     Register
                   </h4>
+                  {error && (
+                    <div style={{ color: "red", textAlign: "center", marginBottom: "16px" }}>
+                      {error}
+                    </div>
+                  )}
                   <form
                     onSubmit={handleRegister}
                     className="u-clearfix u-form-custom-backend u-form-spacing-20 u-form-vertical u-inner-form"
