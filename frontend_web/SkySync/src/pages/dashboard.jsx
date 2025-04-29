@@ -151,190 +151,193 @@ const Dashboard = () => {
   return (
     <div className="min-vh-100">
       <UserHeader />
-    <div className="u-fixed-background" style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      {/* Main Content */}
-      <div className="container mt-4">
-        <div className="col-12 col-md-6 mb-4 d-flex align-items-center gap-3">
-          <TimeCard city={city} />
-          {weatherData && (
-  <Card
-    className="d-flex flex-column align-items-center justify-content-center text-center text-white shadow rounded-3"
-    style={{
-      maxWidth: "300px",
-      height: "181px",
-      backgroundColor: "#1E3A8A", // Custom dark blue
-      fontSize: "36px",
-      fontWeight: "bold",
-    }}
-  >
-    <h3 className="fw-bold m-0 p-0 fs-4">TEMPERATURE</h3>
-    <span className="fs-4 fw-normal">
-      {weatherData.minTemp}°C - {weatherData.maxTemp}°C
-    </span>
-  </Card>
-)}
-
-        </div>
-        <div className="row">
-          {/* Weather Forecast Section */}
-          <div className="col-12 col-md-6 mb-4">
-            <h2>Weather Forecast</h2>
-            <Card className="card-db" style={{ padding: "20px", borderRadius: "8px" }}>
-              <div style={{ marginBottom: "16px" }}>
-                <Input.Search
-                  placeholder="Enter city name"
-                  enterButton="Search"
-                  size="large"
-                  value={city}
-                  onChange={(e) => handleCityChange(e.target.value)}
-                  onSearch={() => {
-                    fetchWeatherData(city);
-                    fetchActivityData(city);
-                  }}
-                  loading={weatherLoading}
-                />
+      <div className="u-fixed-background" style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+        {/* Main Content */}
+        <div className="container mt-4">
+          <div className="row">
+            {/* Weather Forecast Section */}
+            <div className="col-12  mb-4">
+              <h2>Weather Forecast</h2>
+              <div className="d-flex flex-row gap-3">
+              {/* Time and Temperature Section */}
+            <div className="col-12 col-md-6 mb-4">
+              <div className="col-12 d-flex flex-column gap-3">
+                <TimeCard city={city} />
+                {weatherData && (
+                  <Card
+                    className="d-flex flex-column align-items-center justify-content-center text-center text-white shadow rounded-3"
+                    style={{
+                      height: "181px",
+                      backgroundColor: "#1E3A8A", // Custom dark blue
+                      fontSize: "36px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    <h3 className="fw-bold m-0 p-0 fs-4">TEMPERATURE</h3>
+                    <span className="fs-4 fw-normal">
+                      {weatherData.minTemp}°C - {weatherData.maxTemp}°C
+                    </span>
+                  </Card>
+                )}
               </div>
-
-              {error && (
-                <Alert
-                  message={error}
-                  type="error"
-                  showIcon
-                  style={{ marginBottom: "16px" }}
-                />
-              )}
-
-              {weatherLoading ? (
-                <div style={{ textAlign: "center", padding: "20px" }}>
-                  <Spin size="large" />
+            </div>
+              <Card className="card-db" style={{ padding: "20px", borderRadius: "8px" }}>
+                <div style={{ marginBottom: "16px" }}>
+                  <Input.Search
+                    placeholder="Enter city name"
+                    enterButton="Search"
+                    size="large"
+                    value={city}
+                    onChange={(e) => handleCityChange(e.target.value)}
+                    onSearch={() => {
+                      fetchWeatherData(city);
+                      fetchActivityData(city);
+                    }}
+                    loading={weatherLoading}
+                  />
                 </div>
-              ) : weatherData ? (
-                <div>
-                  <h3>
-                    Weather for {city} on {getDayOfWeek(weatherData.date)} (
-                    {weatherData.date})
-                  </h3>
-                  <div style={{ display: "flex", gap: "20px", marginTop: "16px" }}>
-                    <div>
-                      <p>
-                        <strong>Min Temperature:</strong> {weatherData.minTemp}°C
-                      </p>
-                      <p>
-                        <strong>Max Temperature:</strong> {weatherData.maxTemp}°C
-                      </p>
-                    </div>
-                    <div>
-                      <p>
-                        <strong>Conditions:</strong> {weatherData.weatherDescription}
-                      </p>
-                    </div>
+
+                {error && (
+                  <Alert
+                    message={error}
+                    type="error"
+                    showIcon
+                    style={{ marginBottom: "16px" }}
+                  />
+                )}
+
+                {weatherLoading ? (
+                  <div style={{ textAlign: "center", padding: "20px" }}>
+                    <Spin size="large" />
                   </div>
-                  <Button
-                    type="primary"
-                    style={{ marginTop: "16px" }}
-                    onClick={() => navigate("/weeklyforecast")}
-                  >
-                    View Weekly Forecast
-                  </Button>
-                </div>
-              ) : (
-                <p>Enter a city name to see today's weather forecast</p>
-              )}
-            </Card>
+                ) : weatherData ? (
+                  <div>
+                    <h3>
+                      Weather for {city} on {getDayOfWeek(weatherData.date)} (
+                      {weatherData.date})
+                    </h3>
+                    <div style={{ display: "flex", gap: "20px", marginTop: "16px" }}>
+                      <div>
+                        <p>
+                          <strong>Min Temperature:</strong> {weatherData.minTemp}°C
+                        </p>
+                        <p>
+                          <strong>Max Temperature:</strong> {weatherData.maxTemp}°C
+                        </p>
+                      </div>
+                      <div>
+                        <p>
+                          <strong>Conditions:</strong> {weatherData.weatherDescription}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="primary"
+                      style={{ marginTop: "16px" }}
+                      onClick={() => navigate("/weeklyforecast")}
+                    >
+                      View Weekly Forecast
+                    </Button>
+                  </div>
+                ) : (
+                  <p>Enter a city name to see today's weather forecast</p>
+                )}
+              </Card>
+              </div>
+            </div>
           </div>
 
-          {/* Recommended Wardrobe Section */}
-          <div className="col-12 col-md-6 mb-4">
-            <h2>Recommended Wardrobe</h2>
-            <Card className="card-db" style={{ padding: "20px", borderRadius: "8px" }}>
-              {wardrobeLoading ? (
-                <div style={{ textAlign: "center" }}>
-                  <Spin />
-                </div>
-              ) : wardrobeData && wardrobeData.length > 0 ? (
-                <div>
-                  <Tag
-                    color="blue"
-                    style={{ fontSize: "16px", padding: "8px", marginBottom: "12px" }}
-                  >
-                    {wardrobeData[0].theme}
-                  </Tag>
-                  <List className="card-db"
-                    header={<strong>Recommended Items:</strong>}
-                    bordered
-                    dataSource={wardrobeData[0].clothingItems.map((item, index) => ({
-                      item,
-                      description: wardrobeData[0].clothingDescriptions[index],
-                    }))}
-                    renderItem={({ item, description }) => (
-                      <List.Item>
-                        <div className="text-white">
-                          <span style={{ marginRight: "8px" }}>•</span>
-                          <strong>{item}</strong>
-                          <div className="text-white" style={{ color: "#666", marginTop: "4px" }}>
-                            {description}
+          <div className="row">
+            {/* Recommended Wardrobe Section */}
+            <div className="col-12 col-md-6 mb-4">
+              <h2>Recommended Wardrobe</h2>
+              <Card className="card-db" style={{ padding: "20px", borderRadius: "8px" }}>
+                {wardrobeLoading ? (
+                  <div style={{ textAlign: "center" }}>
+                    <Spin />
+                  </div>
+                ) : wardrobeData && wardrobeData.length > 0 ? (
+                  <div>
+                    <Tag
+                      color="blue"
+                      style={{ fontSize: "16px", padding: "8px", marginBottom: "12px" }}
+                    >
+                      {wardrobeData[0].theme}
+                    </Tag>
+                    <List className="card-db"
+                      header={<strong>Recommended Items:</strong>}
+                      bordered
+                      dataSource={wardrobeData[0].clothingItems.map((item, index) => ({
+                        item,
+                        description: wardrobeData[0].clothingDescriptions[index],
+                      }))}
+                      renderItem={({ item, description }) => (
+                        <List.Item>
+                          <div className="text-white">
+                            <span style={{ marginRight: "8px" }}>•</span>
+                            <strong>{item}</strong>
+                            <div className="text-white" style={{ color: "#666", marginTop: "4px" }}>
+                              {description}
+                            </div>
                           </div>
-                        </div>
-                      </List.Item>
-                    )}
-                  />
-                  <Button
-                    type="primary"
-                    style={{ marginTop: "16px" }}
-                    onClick={() => navigate("/recommendedwardrobe")}
-                  >
-                    View All Recommended Wardrobes
-                  </Button>
-                </div>
-              ) : (
-                <p>Enter a city name to get wardrobe recommendations</p>
-              )}
-            </Card>
-          </div>
-        </div>
+                        </List.Item>
+                      )}
+                    />
+                    <Button
+                      type="primary"
+                      style={{ marginTop: "16px" }}
+                      onClick={() => navigate("/recommendedwardrobe")}
+                    >
+                      View All Recommended Wardrobes
+                    </Button>
+                  </div>
+                ) : (
+                  <p>Enter a city name to get wardrobe recommendations</p>
+                )}
+              </Card>
+            </div>
 
-        <div className="row">
-          {/* Recommended Activities Section */}
-          <div className="col-12">
-            <h2>Recommended Activities</h2>
-            <Card className="card-db" style={{ padding: "20px", borderRadius: "8px" }}>
-              {activityLoading ? (
-                <div style={{ textAlign: "center" }}>
-                  <Spin />
-                </div>
-              ) : activityData && activityData.length > 0 ? (
-                <div>
-                  <List className="text-white"
-                    header={<strong>Recommended Activities:</strong>}
-                    bordered
-                    dataSource={activityData.slice(0, 3)}
-                    renderItem={(activity) => (
-                      <List.Item className="text-white">
-                        <div>
-                          <strong>{activity.name}</strong>
-                          <div className="text-white" style={{ color: "#666", marginTop: "4px" }}>
-                            {activity.description}
+            {/* Recommended Activities Section */}
+            <div className="col-12 col-md-6 mb-4">
+              <h2>Recommended Activities</h2>
+              <Card className="card-db" style={{ padding: "20px", borderRadius: "8px" }}>
+                {activityLoading ? (
+                  <div style={{ textAlign: "center" }}>
+                    <Spin />
+                  </div>
+                ) : activityData && activityData.length > 0 ? (
+                  <div>
+                    <List className="text-white"
+                      header={<strong>Recommended Activities:</strong>}
+                      bordered
+                      dataSource={activityData.slice(0, 3)}
+                      renderItem={(activity) => (
+                        <List.Item className="text-white">
+                          <div>
+                            <strong>{activity.name}</strong>
+                            <div className="text-white" style={{ color: "#666", marginTop: "4px" }}>
+                              {activity.description}
+                            </div>
                           </div>
-                        </div>
-                      </List.Item>
-                    )}
-                  />
-                  <Button
-                    type="primary"
-                    style={{ marginTop: "16px" }}
-                    onClick={() => navigate("/recommendedactivity")}
-                  >
-                    View All Recommended Activities
-                  </Button>
-                </div>
-              ) : (
-                <p>No activity recommendations available for this city.</p>
-              )}
-            </Card>
+                        </List.Item>
+                      )}
+                    />
+                    <Button
+                      type="primary"
+                      style={{ marginTop: "16px" }}
+                      onClick={() => navigate("/recommendedactivity")}
+                    >
+                      View All Recommended Activities
+                    </Button>
+                  </div>
+                ) : (
+                  <p>No activity recommendations available for this city.</p>
+                )}
+              </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };

@@ -17,7 +17,6 @@ const TimeCard = ({ city }) => {
     <Card
       style={{
         display: "inline-block",
-        maxWidth: "300px", 
         wordWrap: "break-word",
         textAlign: "center",
         borderRadius: "12px",
