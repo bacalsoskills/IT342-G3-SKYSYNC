@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Form, TimePicker, Button, message, Row, Col, Input } from "antd"; // Add Input here
 import { scheduleActivity } from "../services/scheduleService";
 import moment from "moment"; // Ensure moment is installed
+import UserHeader from "../components/userHeader";
 
 const ScheduleActivity = () => {
   const location = useLocation();
@@ -26,8 +27,14 @@ const ScheduleActivity = () => {
       console.log("Formatted End Time:", formattedEndTime);
 
       await scheduleActivity(userId, activity.activityId, formattedStartTime, formattedEndTime); // Send formatted times to the backend
-      message.success("Activity scheduled successfully!");
-      navigate("/dashboard"); // Navigate back to the dashboard
+
+      // Show success message
+      message.success("Activity scheduled successfully! Redirecting to dashboard...");
+
+      // Redirect to the dashboard after a short delay
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000); // 2-second delay
     } catch (err) {
       console.error("Error scheduling activity:", err);
       message.error("Failed to schedule activity. Please try again.");
@@ -37,7 +44,9 @@ const ScheduleActivity = () => {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+    <div className="min-vh-100 u-fixed-background" >
+      <UserHeader />
+    <div className="col-12 col-md-10 col-lg-8 mx-auto" style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <Button type="default" onClick={() => navigate("/recommendedactivity")} style={{ marginBottom: "20px" }}>
         Back to Recommended Activities
       </Button>
@@ -91,6 +100,7 @@ const ScheduleActivity = () => {
       ) : (
         <p>No activity selected. Please go back and select an activity.</p>
       )}
+    </div>
     </div>
   );
 };
