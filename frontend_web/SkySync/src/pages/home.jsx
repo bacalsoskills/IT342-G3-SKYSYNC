@@ -4,9 +4,9 @@ import "../styles/nicepage.css";
 import imgWardrobe from '../assets/alyssa-strohmann-TS--uNw-JqE-unsplash1.png';
 import imgActivities from '../assets/alyssa-strohmann-TS--uNw-JqE-unsplash2.png';
 import imgWeather from '../assets/alyssa-strohmann-TS--uNw-JqE-unsplash3.png';
-import imgAlico from '../assets/7e4ea1ca.jpeg';
-import imgBaluntang from '../assets/145b6185.jpeg';
-import imgBacalso from '../assets/d8e17dd9.jpeg';
+import imgAlico from '../assets/Alico.jpg';
+import imgBaluntang from '../assets/Baluntang.jpg';
+import imgBacalso from '../assets/Bacalso.jpg';
 import hero from "../assets/hero.png";
 import Header from "../components/header";
 import Footer from "../components/footer";
@@ -192,7 +192,7 @@ const Home = () => {
         className="img-fluid  mb-3"
         src={imgAlico}
       />
-      <h5>Alico</h5>
+      <h5>Christian Barry R. Alico</h5>
       <p>Backend Developer</p>
     </div>
 
@@ -203,7 +203,7 @@ const Home = () => {
         className="img-fluid mb-3"
         src={imgBaluntang}
       />
-      <h5>Baluntang</h5>
+      <h5>Rendolf E. Baluntang</h5>
       <p>Frontend Web</p>
     </div>
 
@@ -214,7 +214,7 @@ const Home = () => {
         className="img-fluid mb-3"
         src={imgBacalso}
       />
-      <h5>Bacalso</h5>
+      <h5>Michael Ferdinand C. Bacalso</h5>
       <p>Frontend Mobile</p>
     </div>
   </div>
