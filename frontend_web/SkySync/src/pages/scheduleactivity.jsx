@@ -12,6 +12,31 @@ const ScheduleActivity = () => {
   const userId = localStorage.getItem("userId"); // Retrieve the user ID from localStorage
 
   const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm(); // Add this line to use Form instance
+  const [formValues, setFormValues] = useState({ startTime: null, endTime: null });
+
+  const getDisabledEndTime = () => {
+    const startTime = form.getFieldValue("startTime");
+    if (!startTime) return {};
+
+    const startHour = startTime.hour();
+    const startMinute = startTime.minute();
+
+    return {
+      // Disable all hours less than or equal to the start hour
+      disabledHours: () => Array.from({ length: 24 }, (_, i) => i).filter(h => h <= startHour),
+      // If the selected hour is the next hour after start, disable minutes less than or equal to startMinute
+      disabledMinutes: (selectedHour) => {
+        return [];
+      },
+    };
+  };
+
+  const isScheduleDisabled = () => {
+    const { startTime, endTime } = formValues;
+    if (!startTime || !endTime) return true;
+    return !endTime.isAfter(startTime);
+  };
 
   const onFinish = async (values) => {
     setLoading(true);
@@ -53,12 +78,14 @@ const ScheduleActivity = () => {
       <h2>Schedule Activity</h2>
       {activity ? (
         <Form
+          form={form} // Attach form instance
           layout="vertical"
           onFinish={onFinish}
           initialValues={{
             startTime: null,
             endTime: null,
           }}
+          onValuesChange={(_, allValues) => setFormValues(allValues)}
         >
           <Form.Item label="Activity Name">
             <Input value={activity.name} disabled />
@@ -74,6 +101,10 @@ const ScheduleActivity = () => {
                   format="HH:mm"
                   hideDisabledOptions // Hides disabled options for cleaner UI
                   renderExtraFooter={() => null} // Ensures the footer is completely removed
+                  onChange={() => {
+                    // Reset endTime if startTime changes
+                    form.setFieldsValue({ endTime: null });
+                  }}
                 />
               </Form.Item>
             </Col>
@@ -81,18 +112,35 @@ const ScheduleActivity = () => {
               <Form.Item
                 label="End Time"
                 name="endTime"
-                rules={[{ required: true, message: "Please select an end time!" }]}
+                dependencies={["startTime"]}
+                rules={[
+                  { required: true, message: "Please select an end time!" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const start = getFieldValue("startTime");
+                      if (!start || !value) return Promise.resolve();
+                      if (value.isAfter(start)) return Promise.resolve();
+                      return Promise.reject(new Error("End time must be after start time!"));
+                    },
+                  }),
+                ]}
               >
                 <TimePicker
                   format="HH:mm"
                   hideDisabledOptions // Hides disabled options for cleaner UI
                   renderExtraFooter={() => null} // Ensures the footer is completely removed
+                  {...getDisabledEndTime()}
                 />
               </Form.Item>
             </Col>
           </Row>
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              disabled={isScheduleDisabled()}
+            >
               Schedule Activity
             </Button>
           </Form.Item>
