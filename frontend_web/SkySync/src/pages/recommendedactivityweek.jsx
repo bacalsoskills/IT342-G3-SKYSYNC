@@ -1,27 +1,33 @@
 import React, { useState, useEffect } from "react";
-import { Card, Spin, Alert, List, Button, message } from "antd";
-import { getActivityRecommendationsByCity, saveActivityForUser } from "../services/activityService";
+import { Card, Spin, Alert, Button, message } from "antd";
+import { getActivityRecommendationsByCode, saveActivityForUser } from "../services/activityService";
 import { useNavigate } from "react-router-dom";
 import UserHeader from "../components/userHeader";
 
-const RecommendedActivity = () => {
-  const [city, setCity] = useState(() => {
-    return localStorage.getItem("lastCity") || "Cebu";
-  });
+const RecommendedActivityWeek = () => {
   const [activityData, setActivityData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
 
+  // Retrieve the saved day data from localStorage
+  const savedDayData = JSON.parse(localStorage.getItem("selectedDayData"));
+
   useEffect(() => {
     const fetchActivityData = async () => {
+      if (!savedDayData) {
+        message.error("No day data found. Redirecting to Weekly Forecast...");
+        navigate("/weeklyforecast");
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
       try {
-        const data = await getActivityRecommendationsByCity(city);
-        setActivityData(data);
+        const data = await getActivityRecommendationsByCode(savedDayData.weatherCode);
+        setActivityData(data); // Set the activity data
       } catch (err) {
         console.error("Error fetching activity recommendations:", err);
         setError("Failed to fetch activity recommendations. Please try again.");
@@ -31,10 +37,15 @@ const RecommendedActivity = () => {
     };
 
     fetchActivityData();
-  }, [city]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array to ensure it runs only once
 
   const handleAddActivity = async (activity) => {
     try {
+      // Use the date from savedDayData instead of today's date
+      const selectedDate = savedDayData.date; // Use the date from the weekly forecast
+      localStorage.setItem("selectedScheduleDate", selectedDate);
+
       const savedActivity = await saveActivityForUser(userId, activity); // Save the activity and get the saved activity
       message.success("Activity added successfully!");
       // Navigate to the schedule activity page with the saved activity details
@@ -49,21 +60,26 @@ const RecommendedActivity = () => {
     <div className="min-vh-100 u-fixed-background">
       <UserHeader />
       <div className="container" style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-        <Button type="default" onClick={() => navigate("/dashboard")} style={{ marginBottom: "20px" }}>
-          Back to Dashboard
+        <Button type="default" onClick={() => navigate("/weeklyforecast")} style={{ marginBottom: "20px" }}>
+          Back to Weekly Forecast
         </Button>
         <Button
           type="primary"
           onClick={() => {
-            const today = new Date().toISOString().split("T")[0]; // Set today's date
-            localStorage.setItem("selectedScheduleDate", today); // Save today's date
+            const selectedDate = savedDayData?.date || new Date().toISOString().split("T")[0]; // Use the selected date or default to today
+            localStorage.setItem("selectedScheduleDate", selectedDate); // Save the selected date
             navigate("/useraddactivity");
           }}
           style={{ marginBottom: "20px", marginLeft: "10px" }}
         >
           Add Own Activity
         </Button>
-        <h2>All Recommended Activities for {city}</h2>
+        <h2>Recommended Activities for {savedDayData?.dayOfWeek}, {savedDayData?.date}</h2>
+        <p>
+          <strong>Weather:</strong> {savedDayData?.weatherDescription} <br />
+          <strong>Min Temp:</strong> {savedDayData?.minTemp}°C <br />
+          <strong>Max Temp:</strong> {savedDayData?.maxTemp}°C
+        </p>
         <div className="row">
           {loading ? (
             <div className="col-12" style={{ textAlign: "center", padding: "20px" }}>
@@ -112,7 +128,7 @@ const RecommendedActivity = () => {
             ))
           ) : (
             <div className="col-12">
-              <p>No activity recommendations available for this city.</p>
+              <p>No activity recommendations available for this weather condition.</p>
             </div>
           )}
         </div>
@@ -121,4 +137,4 @@ const RecommendedActivity = () => {
   );
 };
 
-export default RecommendedActivity;
+export default RecommendedActivityWeek;
