@@ -43,25 +43,6 @@ public class ScheduleEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @PrePersist
-    protected void onCreate() {
-        LocalDate currentDate = LocalDate.now();
-        this.date = currentDate;
-        this.dayOfWeek = currentDate.getDayOfWeek()
-                              .getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.US);
-        
-        // Also adjust startTime and endTime to use current date
-        if (this.startTime != null) {
-            this.startTime = this.startTime.withYear(currentDate.getYear())
-                                     .withMonth(currentDate.getMonthValue())
-                                     .withDayOfMonth(currentDate.getDayOfMonth());
-        }
-        if (this.endTime != null) {
-            this.endTime = this.endTime.withYear(currentDate.getYear())
-                                 .withMonth(currentDate.getMonthValue())
-                                 .withDayOfMonth(currentDate.getDayOfMonth());
-        }
-    }
 
     // Getters
     public Long getScheduleId() {

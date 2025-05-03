@@ -77,6 +77,26 @@ public class ActivityController {
         return ResponseEntity.notFound().build(); // Return 404 if no weather data is available
     }
 
+    // Get activity recommendations by weather code
+    @GetMapping("/recommendationsByCode")
+    public ResponseEntity<List<ActivityDTO>> getRecommendationsByCode(@RequestParam int weatherCode) {
+        String weatherCondition = activityService.getWeatherDescription(weatherCode);
+
+        // Fetch recommendations from the database
+        List<RecommendedActivityEntity> recommendations = activityService.getRecommendedActivities(weatherCondition);
+
+        // Map RecommendedActivityEntity to ActivityDTO
+        List<ActivityDTO> activityDTOs = recommendations.stream()
+            .map(rec -> new ActivityDTO(
+                rec.getName(),
+                rec.getDescription(),
+                rec.getWeatherCondition()
+            ))
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(activityDTOs);
+    }
+
     // Delete an activity by ID
     @DeleteMapping
     public ResponseEntity<String> deleteActivity(@RequestParam Long activityId) {

@@ -22,7 +22,9 @@ const MyActivity = () => {
 
       try {
         const data = await getUserActivities(userId);
-        setActivities(data);
+        // Sort activities in descending order by activityId
+        const sortedActivities = data.sort((a, b) => b.activityId - a.activityId);
+        setActivities(sortedActivities);
       } catch (err) {
         console.error("Error fetching user activities:", err);
         setError("Failed to fetch user activities. Please try again.");

@@ -70,6 +70,11 @@ public class ScheduleService {
         schedule.setStartTime(startTime);
         schedule.setEndTime(endTime);
 
+        // Set the date and dayOfWeek based on the startTime
+        schedule.setDate(startTime.toLocalDate());
+        schedule.setDayOfWeek(startTime.getDayOfWeek()
+            .getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.US));
+
         ScheduleEntity savedSchedule = scheduleRepository.save(schedule);
 
         // Publish the schedule created event

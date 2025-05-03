@@ -71,3 +71,19 @@ export const deleteActivity = async (activityId) => {
     throw error;
   }
 };
+
+export const getActivityRecommendationsByCode = async (weatherCode) => {
+  try {
+    const authToken = localStorage.getItem("authToken"); // Retrieve the token from localStorage
+    const response = await axios.get(`${API_URL}/recommendationsByCode`, {
+      params: { weatherCode },
+      headers: {
+        Authorization: `Bearer ${authToken}`, // Include the token in the Authorization header
+      },
+    });
+    return response.data; // Return the list of recommended activities
+  } catch (error) {
+    console.error("Error fetching activity recommendations by code:", error);
+    throw error;
+  }
+};

@@ -14,6 +14,8 @@ import RecommendedActivity from './pages/recommendedactivity'; // Import the Rec
 import MyActivity from './pages/myactivity'; // Import the MyActivity component
 import ScheduleActivity from "./pages/scheduleactivity"; // Import the ScheduleActivity component
 import NotificationPage from './pages/notification'; // Import the NotificationPage component
+import UserAddActivity from "./pages/useraddactivity"; // Import the UserAddActivity component
+import RecommendedActivityWeek from "./pages/recommendedactivityweek"; // Import the component
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
           <Route path="/myactivity" element={<MyActivity />} /> {/* Add MyActivity route */}
           <Route path="/scheduleactivity" element={<ScheduleActivity />} /> {/* Add ScheduleActivity route */}
           <Route path="/notifications" element={<NotificationPage />} /> {/* Add NotificationPage route */}
+          <Route path="/useraddactivity" element={<UserAddActivity />} /> {/* Add this route */}
+          <Route path="/recommendedactivityweek" element={<RecommendedActivityWeek />} /> {/* Add this route */}
         </Routes>
       </div>
     </Router>

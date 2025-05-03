@@ -27,7 +27,7 @@ const TimeCard = ({ city }) => {
     >
       <h3 style={{ margin: 0 , textTransform: "uppercase" }}>{city}</h3>
       <h1 style={{ margin: "10px 0", fontSize: "36px", fontWeight: "bold" }}>
-        {time.format("HH:mm")}
+        {time.format("hh:mm A")}
       </h1>
       <p style={{ margin: 0 }}>{time.format("dddd, DD MMM")}</p>
     </Card>
