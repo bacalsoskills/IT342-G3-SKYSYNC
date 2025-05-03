@@ -24,6 +24,7 @@ import com.frontend.mobile.ui.activitypage.MyActivityPage
 import com.frontend.mobile.viewactivities.ViewAllRecommendedWardrobes
 import com.frontend.mobile.viewactivities.ViewWeeklyForecast
 import com.frontend.mobile.viewactivities.ScheduleActivity
+import com.frontend.mobile.viewactivities.UserAddActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -186,6 +187,11 @@ fun AppNavigator() {
             val activityId = backStackEntry.arguments?.getLong("activityId") ?: -1L
             ActivityDetails(navController = navController, activityId = activityId)
         }
+
+        // Add the UserAddActivity screen to the navigation graph
+        composable("user_add_activity") {
+        UserAddActivity(navController = navController) // Pass the NavController
+    }   
     
 
     }
