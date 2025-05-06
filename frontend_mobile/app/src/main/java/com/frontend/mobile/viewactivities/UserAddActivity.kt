@@ -2,19 +2,24 @@ package com.frontend.mobile.viewactivities
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.frontend.mobile.R
 import com.frontend.mobile.api.ApiClient
 import com.frontend.mobile.api.ApiService
 import com.frontend.mobile.model.ActivityDTO
@@ -80,18 +85,45 @@ fun UserAddActivity(navController: NavHostController) {
             .fillMaxSize()
             .background(Color(0xFFA7F0F9))
     ) {
+        // Back Button
+        IconButton(
+            onClick = { navController.popBackStack() },
+            modifier = Modifier
+                .padding(top = 40.dp, start = 16.dp)
+                .align(Alignment.TopStart)
+        ) {
+            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+        }
+
+        // Logo
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 80.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.imagelogo),
+                contentDescription = "SkySync Logo",
+                modifier = Modifier.height(100.dp)
+            )
+        }
+
+        // Add Activity Section
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(top = 200.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
+                .align(Alignment.TopCenter),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
                 text = "Add Your Own Activity",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
 
             OutlinedTextField(
