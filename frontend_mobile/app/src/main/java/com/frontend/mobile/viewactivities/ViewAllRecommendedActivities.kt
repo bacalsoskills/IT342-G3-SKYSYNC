@@ -191,7 +191,16 @@ fun ViewAllRecommendedActivities(
                     }
 
                 }
+            }
+
+           Button(
+                onClick = { navController.navigate("user_add_activity") }, // Ensure the route matches the navigation graph
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2D9CDB)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Add Own Activity", color = Color.White)
+            }
         }
-    }
     }
 }

@@ -1,5 +1,6 @@
 package com.frontend.mobile.viewactivities
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import com.frontend.mobile.R
 import com.frontend.mobile.api.ApiClient
@@ -36,8 +38,19 @@ fun ViewWeeklyForecast(city: String, navController: NavHostController) {
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    // Retrieve the token from SharedPreferences
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    val token = sharedPreferences.getString("authToken", null)
+
     LaunchedEffect(city) {
-        apiService.getWeeklyWeatherByCity(city).enqueue(object : Callback<List<DailyWeatherDTO>> {
+        if (token == null) {
+            errorMessage = "Authentication token not found"
+            isLoading = false
+            return@LaunchedEffect
+        }
+
+        apiService.getWeeklyWeatherByCity(city, "Bearer $token").enqueue(object : Callback<List<DailyWeatherDTO>> {
             override fun onResponse(
                 call: Call<List<DailyWeatherDTO>>,
                 response: Response<List<DailyWeatherDTO>>
