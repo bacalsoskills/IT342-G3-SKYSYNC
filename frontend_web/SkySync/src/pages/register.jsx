@@ -21,6 +21,8 @@ const Register = () => {
     e.preventDefault();
     setError(""); // Clear previous errors
     if (password !== confirmPassword) {
+      setPassword("");
+      setConfirmPassword("");
       setPasswordError(true);
       return;
     }

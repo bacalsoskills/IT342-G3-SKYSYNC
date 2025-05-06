@@ -63,10 +63,12 @@ const MyActivity = () => {
             ) : error ? (
               <Alert message={error} type="error" showIcon />
             ) : (
-              <MyActivityList
-                activities={activities}
-                onViewDetails={handleViewDetails} // Pass the handler to the list
-              />
+              <div className="mb-4">
+                <MyActivityList
+                  activities={activities}
+                  onViewDetails={handleViewDetails}
+                />
+              </div>
             )}
           </div>
         </div>

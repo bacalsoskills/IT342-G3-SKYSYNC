@@ -156,93 +156,101 @@ const Dashboard = () => {
         <div className="container mt-4">
           <div className="row">
             {/* Weather Forecast Section */}
-            <div className="col-12  mb-4">
+            <div className="col-12 mb-4">
               <h2>Weather Forecast</h2>
-              <div className="d-flex flex-row gap-3">
-              {/* Time and Temperature Section */}
-            <div className="col-12 col-md-6 mb-4">
-              <div className="col-12 d-flex flex-column gap-3">
-                <TimeCard city={city} />
-                {weatherData && (
-                  <Card
-                    className="d-flex flex-column align-items-center justify-content-center text-center text-white shadow rounded-3"
-                    style={{
-                      height: "181px",
-                      backgroundColor: "#1E3A8A", // Custom dark blue
-                      fontSize: "36px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    <h3 className="fw-bold m-0 p-0 fs-4">TEMPERATURE</h3>
-                    <span className="fs-4 fw-normal">
-                      {weatherData.minTemp}°C - {weatherData.maxTemp}°C
-                    </span>
-                  </Card>
-                )}
+              <div style={{ marginBottom: "16px" }}>
+                <Input.Search
+                  placeholder="Enter city name"
+                  enterButton="Search"
+                  size="large"
+                  value={city}
+                  onChange={(e) => handleCityChange(e.target.value)}
+                  onSearch={() => {
+                    fetchWeatherData(city);
+                    fetchActivityData(city);
+                  }}
+                  loading={weatherLoading}
+                />
               </div>
-            </div>
-              <Card className="card-db" style={{ padding: "20px", borderRadius: "8px" }}>
-                <div style={{ marginBottom: "16px" }}>
-                  <Input.Search
-                    placeholder="Enter city name"
-                    enterButton="Search"
-                    size="large"
-                    value={city}
-                    onChange={(e) => handleCityChange(e.target.value)}
-                    onSearch={() => {
-                      fetchWeatherData(city);
-                      fetchActivityData(city);
-                    }}
-                    loading={weatherLoading}
-                  />
+              {/* Use Bootstrap row/col for responsive layout */}
+              <div className="row">
+                {/* Left Column */}
+                <div className="col-12 col-md-6 mb-4">
+                  <div className="d-flex flex-column gap-3">
+                    <TimeCard city={city} />
+                    {weatherData && (
+                      <Card
+                        className="d-flex flex-column align-items-center justify-content-center text-center text-white shadow rounded-3"
+                        style={{
+                          height: "190px",
+                          backgroundColor: "#1E3A8A",
+                          fontSize: "36px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        <h3 className="fw-bold m-0 p-0 fs-4">TEMPERATURE</h3>
+                        <span className="fs-4 fw-normal">
+                          {weatherData.minTemp}°C - {weatherData.maxTemp}°C
+                        </span>
+                      </Card>
+                    )}
+                  </div>
                 </div>
-
-                {error && (
-                  <Alert
-                    message={error}
-                    type="error"
-                    showIcon
-                    style={{ marginBottom: "16px" }}
-                  />
-                )}
-
-                {weatherLoading ? (
-                  <div style={{ textAlign: "center", padding: "20px" }}>
-                    <Spin size="large" />
-                  </div>
-                ) : weatherData ? (
-                  <div>
-                    <h3>
-                      Weather for {city} on {getDayOfWeek(weatherData.date)} (
-                      {weatherData.date})
-                    </h3>
-                    <div style={{ display: "flex", gap: "20px", marginTop: "16px" }}>
-                      <div>
-                        <p>
-                          <strong>Min Temperature:</strong> {weatherData.minTemp}°C
-                        </p>
-                        <p>
-                          <strong>Max Temperature:</strong> {weatherData.maxTemp}°C
-                        </p>
+                {/* Right Column */}
+                <div className="col-12 col-md-6 mb-4">
+                  <Card className="card-db" style={{ padding: "20px", borderRadius: "8px" }}>
+                    {error && (
+                      <Alert
+                        message={error}
+                        type="error"
+                        showIcon
+                        style={{ marginBottom: "16px" }}
+                      />
+                    )}
+                    {weatherLoading ? (
+                      <div style={{ textAlign: "center", padding: "20px" }}>
+                        <Spin size="large" />
                       </div>
+                    ) : weatherData ? (
                       <div>
-                        <p>
-                          <strong>Conditions:</strong> {weatherData.weatherDescription}
-                        </p>
+                        <h3>
+                          Weather for {city} on {getDayOfWeek(weatherData.date)} (
+                          {weatherData.date})
+                        </h3>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "20px",
+                            marginTop: "16px",
+                          }}
+                        >
+                          <div>
+                            <p>
+                              <strong>Min Temperature:</strong> {weatherData.minTemp}°C
+                            </p>
+                            <p>
+                              <strong>Max Temperature:</strong> {weatherData.maxTemp}°C
+                            </p>
+                          </div>
+                          <div>
+                            <p>
+                              <strong>Conditions:</strong> {weatherData.weatherDescription}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="primary"
+                          style={{ marginTop: "16px" }}
+                          onClick={() => navigate("/weeklyforecast")}
+                        >
+                          View Weekly Forecast
+                        </Button>
                       </div>
-                    </div>
-                    <Button
-                      type="primary"
-                      style={{ marginTop: "16px" }}
-                      onClick={() => navigate("/weeklyforecast")}
-                    >
-                      View Weekly Forecast
-                    </Button>
-                  </div>
-                ) : (
-                  <p>Enter a city name to see today's weather forecast</p>
-                )}
-              </Card>
+                    ) : (
+                      <p>Enter a city name to see today's weather forecast</p>
+                    )}
+                  </Card>
+                </div>
               </div>
             </div>
           </div>
